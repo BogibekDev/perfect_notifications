@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1065491798503",
+    "project_id": "notificationexample-c9694",
+    "storage_bucket": "notificationexample-c9694.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1065491798503:android:301af3013d6eddc2134542",
+        "android_client_info": {
+          "package_name": "org.perfect.notifications.perfect_notifications_example"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAedaHmTby0YtR-ZQZW7ty5KgHgbI3mylw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
