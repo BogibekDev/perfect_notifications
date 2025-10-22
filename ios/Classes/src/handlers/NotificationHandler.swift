@@ -139,13 +139,13 @@ class NotificationHandler {
             case .denied: statusString = "denied"
             case .notDetermined: statusString = "notDetermined"
             case .provisional: statusString = "provisional"
-            case .ephemeral: statusString = "ephemeral"
+            // case .ephemeral: statusString = "ephemeral"
             @unknown default: statusString = "unknown"
             }
 
             self.resultHandler.success(result, data: [
                 "status": statusString,
-                "isAuthorized": status == .authorized || status == .provisional || status == .ephemeral
+                "isAuthorized": status == .authorized || status == .provisional
             ])
         }
     }

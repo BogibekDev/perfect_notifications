@@ -1,6 +1,7 @@
 package org.perfect.notifications.perfect_notifications.enum
 
 object Methods {
+    const val INITIALIZE   = "initialize"
     const val GET_PLATFORM_VERSION   = "getPlatformVersion"
     const val INIT_OPTIONS           = "init_options"
     const val SAVE_LANGUAGE           = "save_language"

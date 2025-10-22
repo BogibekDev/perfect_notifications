@@ -6,6 +6,7 @@ import Foundation
 
 enum Methods {
     // Platform
+    static let INITIALIZE = "initialize"
     static let GET_PLATFORM_VERSION = "getPlatformVersion"
     static let INIT_OPTIONS         = "init_options"
     static let SAVE_LANGUAGE        = "save_language"

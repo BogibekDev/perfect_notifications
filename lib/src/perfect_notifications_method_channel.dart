@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:perfect_notifications/perfect_notifications.dart';
-import 'package:perfect_notifications/src/enum/language.dart';
 import 'package:perfect_notifications/src/enum/methods.dart';
 import 'package:perfect_notifications/src/perfect_notifications_platform_interface.dart';
 
@@ -101,6 +100,22 @@ class MethodChannelPerfectNotifications extends PerfectNotificationsPlatform {
       final bool? result = await methodChannel.invokeMethod<bool>(Methods.saveLanguage.name, {
         'locale': lan.locale,
       });
+
+      return result ?? false;
+    } on PlatformException catch (e) {
+      debugPrint('PlatformException in saveLanguage: ${e.code} - ${e.message}');
+      return false;
+    } catch (e, stack) {
+      debugPrint('Unexpected error in saveLanguage: $e');
+      debugPrint('$stack');
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> initialize() async {
+    try {
+      final bool? result = await methodChannel.invokeMethod<bool>(Methods.initialize.name);
 
       return result ?? false;
     } on PlatformException catch (e) {

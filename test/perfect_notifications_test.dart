@@ -67,6 +67,13 @@ class MockPerfectNotificationsPlatform
     throw UnimplementedError();
   }
 
+  @override
+  Future<bool> initialize() {
+    // TODO: implement initialize
+
+    throw UnimplementedError();
+  }
+
 
 
 }

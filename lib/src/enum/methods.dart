@@ -1,6 +1,9 @@
 /// Native method nomlari
 enum Methods {
   /// Firebase options initialize
+  initialize('initialize'),
+
+  /// Firebase options initialize
   initOptions('init_options'),
 
   /// save language

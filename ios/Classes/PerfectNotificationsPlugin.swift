@@ -91,6 +91,10 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
         case "init_options":
             handleInitOptions(call: call, result: result)
             
+            // MARK: - Firebase Options
+        case "initialize":
+            handleInitalize(call: call, result: result)
+            
         // MARK: - Language
         case "save_language":
             languageHandler.handleSaveLanguage(call: call, result: result)
@@ -143,6 +147,20 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
             resultHandler.notImplemented(result)
         }
     }
+    
+    private func handleInitalize(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    
+        // FCM delegate
+        Messaging.messaging().delegate = self
+        
+        // Remote notifications registration
+        DispatchQueue.main.async {
+            UIApplication.shared.registerForRemoteNotifications()
+        }
+        
+        resultHandler.success(result, data: true)
+    }
+    
     
     // MARK: - Firebase Initialization
     

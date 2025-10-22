@@ -35,6 +35,11 @@ abstract class PerfectNotificationsPlatform extends PlatformInterface {
     throw UnimplementedError('saveLanguage() has not been implemented.');
   }
 
+  /// iOS uchun init
+  Future<bool> initialize() {
+    throw UnimplementedError('initialize() has not been implemented.');
+  }
+
   /// Firebase sozlamalarini initialize qilish
   Future<bool> initOptions(NotificationOptions options) {
     throw UnimplementedError('initOptions() has not been implemented.');

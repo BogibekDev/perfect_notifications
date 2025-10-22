@@ -134,6 +134,13 @@ class PerfectNotifications {
   }
 
 
+
+  /// Returns: `true` agar  muvaffaqiyatli bo'lsa.
+  Future<bool> initialize() async {
+    return await _platform.initialize();
+  }
+
+
   /// Barcha channel'larni olish
   ///
   /// Returns: Channel'lar ro'yxati (faqat Android)

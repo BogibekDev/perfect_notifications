@@ -37,6 +37,7 @@ class PerfectNotificationsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
+            Methods.INITIALIZE -> result.success(true)
             Methods.SAVE_LANGUAGE -> saveLanguage(call, result)
 
             Methods.GET_PLATFORM_VERSION -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
