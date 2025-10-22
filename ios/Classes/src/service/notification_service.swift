@@ -1,34 +1,237 @@
+import Foundation
 import UIKit
 import UserNotifications
 
-final class NotificationService: NSObject {
+/// Notification'larni boshqarish va ko'rsatish
+class NotificationService: NSObject {
+
+    // MARK: - Properties
+
     private let center = UNUserNotificationCenter.current()
 
+    // MARK: - Permission
+
+    /// Permission so'rash
+    /// - Parameter completion: Granted yoki yo'qligi
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
-        center.requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-            DispatchQueue.main.async { completion(granted) }
+        center.requestAuthorization(options: [.alert, .badge, .sound, .criticalAlert]) { granted, error in
+            if let error = error {
+                print("❌ Permission error: \(error.localizedDescription)")
+            }
+            DispatchQueue.main.async {
+                completion(granted)
+            }
         }
     }
 
-    func showNotification(_ data: NotificationDetails, userInfo: [AnyHashable: Any] = [:], soundName: String? = nil) {
-        let content = UNMutableNotificationContent()
-        content.title = data.title
-        content.body = data.description
-        content.userInfo = userInfo
+    /// Permission status'ni tekshirish
+    func checkAuthorizationStatus(completion: @escaping (UNAuthorizationStatus) -> Void) {
+        center.getNotificationSettings { settings in
+            DispatchQueue.main.async {
+                completion(settings.authorizationStatus)
+            }
+        }
+    }
 
-        if let soundName, !soundName.isEmpty, soundName != "default" {
-            // soundUri Android’da raw resurs edi; iOS’da main bundle’dan .caf/.aiff/.wav qidiramiz :contentReference[oaicite:6]{index=6}
-            content.sound = UNNotificationSound(named: UNNotificationSoundName(soundName))
+    // MARK: - Show Notification
+
+    /// Notification ko'rsatish
+    /// - Parameters:
+    ///   - details: NotificationDetails
+    ///   - userInfo: Qo'shimcha data (payload)
+    func showNotification(
+        _ details: NotificationDetails,
+        userInfo: [AnyHashable: Any] = [:]
+    ) throws {
+        // Content yaratish
+        let content = createContent(from: details, userInfo: userInfo)
+
+        // Trigger yaratish
+        let trigger = createTrigger()
+
+        // Unique ID
+        let identifier = details.id.map { String($0) } ?? UUID().uuidString
+
+        // Request yaratish
+        let request = UNNotificationRequest(
+            identifier: identifier,
+            content: content,
+            trigger: trigger
+        )
+
+        // Notification qo'shish
+        center.add(request) { error in
+            if let error = error {
+                print("❌ Failed to show notification: \(error.localizedDescription)")
+            } else {
+                print("✅ Notification shown: \(details.title)")
+            }
+        }
+    }
+
+    // MARK: - Cancel Notification
+
+    /// Bitta notification'ni o'chirish
+    /// - Parameter id: Notification ID
+    func cancelNotification(id: Int) {
+        let identifier = String(id)
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        center.removeDeliveredNotifications(withIdentifiers: [identifier])
+        print("🗑️ Notification cancelled: \(id)")
+    }
+
+    /// Barcha notification'larni o'chirish
+    func cancelAllNotifications() {
+        center.removeAllPendingNotificationRequests()
+        center.removeAllDeliveredNotifications()
+        print("🗑️ All notifications cancelled")
+    }
+
+    // MARK: - Badge
+
+    /// Badge sonini o'rnatish
+    /// - Parameter count: Badge soni
+    func setBadge(_ count: Int) {
+        DispatchQueue.main.async {
+            UIApplication.shared.applicationIconBadgeNumber = count
+        }
+    }
+
+    /// Badge'ni reset qilish
+    func clearBadge() {
+        setBadge(0)
+    }
+
+    // MARK: - Private Helpers
+
+    /// Content yaratish
+    private func createContent(
+        from details: NotificationDetails,
+        userInfo: [AnyHashable: Any]
+    ) -> UNMutableNotificationContent {
+        let content = UNMutableNotificationContent()
+
+        // Basic fields
+        content.title = details.title
+        content.body = details.body
+
+        // Subtitle (iOS specific)
+        if let subtitle = details.subtitle {
+            content.subtitle = subtitle
+        }
+
+        // Badge
+        if let badge = details.badge {
+            content.badge = NSNumber(value: badge)
+        }
+
+        // Category (channelId as category)
+        content.categoryIdentifier = details.channelId
+
+        // UserInfo (payload)
+        var finalUserInfo = userInfo
+
+        // Payload'dan data qo'shish
+        if let payload = details.payload {
+            let payloadDict = payload.mapValues { $0.value }
+            finalUserInfo.merge(payloadDict) { (_, new) in new }
+        }
+
+        // NotificationDetails'ni ham qo'shish (tap handler uchun)
+        finalUserInfo["channelId"] = details.channelId
+        finalUserInfo["notificationId"] = details.id
+
+        content.userInfo = finalUserInfo
+
+        // Sound
+        if details.silent == true {
+            // Silent notification
+            content.sound = nil
+        } else if let soundUri = details.soundUri {
+            content.sound = UNNotificationSound.from(soundUri: soundUri)
         } else {
             content.sound = .default
         }
 
-        // iOS’da "channelId" yo‘q, lekin kerak bo‘lsa categoryIdentifier sifatida saqlab qo‘yamiz
-        content.categoryIdentifier = data.channelId
+        // Image attachment (agar imageUrl bo'lsa)
+        if let imageUrl = details.imageUrl {
+            addImageAttachment(to: content, imageUrl: imageUrl)
+        }
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-        let reqId = UUID().uuidString
-        let request = UNNotificationRequest(identifier: reqId, content: content, trigger: trigger)
-        center.add(request, withCompletionHandler: nil)
+        return content
+    }
+
+    /// Trigger yaratish (darhol ko'rsatish)
+    private func createTrigger() -> UNNotificationTrigger {
+        // 0.1 sekund ichida trigger (darhol)
+        return UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+    }
+
+    /// Image attachment qo'shish
+    private func addImageAttachment(to content: UNMutableNotificationContent, imageUrl: String) {
+        // URL dan image yuklab, attachment qilish
+        guard let url = URL(string: imageUrl) else { return }
+
+        // Background thread'da image yuklash
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data,
+                  error == nil,
+                  let image = UIImage(data: data) else {
+                return
+            }
+
+            // Temporary file'ga saqlash
+            let tempDir = FileManager.default.temporaryDirectory
+            let fileName = UUID().uuidString + ".png"
+            let fileURL = tempDir.appendingPathComponent(fileName)
+
+            guard let imageData = image.pngData(),
+                  (try? imageData.write(to: fileURL)) != nil else {
+                return
+            }
+
+            // Attachment yaratish
+            if let attachment = try? UNNotificationAttachment(
+                identifier: UUID().uuidString,
+                url: fileURL,
+                options: nil
+            ) {
+                content.attachments = [attachment]
+            }
+        }.resume()
+    }
+}
+
+// MARK: - UNUserNotificationCenterDelegate Extension
+
+extension NotificationService: UNUserNotificationCenterDelegate {
+
+    /// Foreground'da notification kelganda
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        // iOS 14+
+        if #available(iOS 14.0, *) {
+            completionHandler([.banner, .list, .sound, .badge])
+        } else {
+            // iOS 13 va past
+            completionHandler([.alert, .sound, .badge])
+        }
+    }
+
+    /// Notification tap qilinganda
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+        print("📱 Notification tapped: \(userInfo)")
+
+        // TODO: Event'ni Flutter'ga yuborish (EventChannel orqali)
+
+        completionHandler()
     }
 }

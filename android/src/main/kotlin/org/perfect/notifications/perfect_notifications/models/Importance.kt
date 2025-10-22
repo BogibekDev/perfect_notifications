@@ -1,4 +1,4 @@
-package org.perfect.notifications.perfect_notifications
+package org.perfect.notifications.perfect_notifications.models
 
 object Importance {
 

@@ -3,11 +3,11 @@ package org.perfect.notifications.perfect_notifications.models
 data class ChannelDetails(
     val id: String,
     val name: String,
-    val importance: Int,
     val description: String,
-    val enableSound: Boolean,
-    val soundUri: String?,
-    val enableVibration: Boolean,
+    val importance: Int = Importance.IMPORTANCE_HIGH,
+    val enableSound: Boolean = true,
+    val soundUri: String? = null,
+    val enableVibration: Boolean = true
 ) {
     companion object {
         fun fromMap(map: Map<String, Any?>): ChannelDetails {

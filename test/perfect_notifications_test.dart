@@ -11,11 +11,6 @@ class MockPerfectNotificationsPlatform
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 
-  @override
-  Future<String?> initialize(ChannelDetails details) {
-    // TODO: implement initialize
-    throw UnimplementedError();
-  }
 
   @override
   Future<String?> showNotification(NotificationDetails details) {
@@ -23,9 +18,52 @@ class MockPerfectNotificationsPlatform
     throw UnimplementedError();
   }
 
+
   @override
-  Future<bool?> initOptions(NotificationOptions options) {
+  Future<void> cancelAllNotifications() {
+    // TODO: implement cancelAllNotifications
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> cancelNotification(int id) {
+    // TODO: implement cancelNotification
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> channelExists(String channelId) {
+    // TODO: implement channelExists
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> createChannel(ChannelDetails details) {
+    // TODO: implement createChannel
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteChannel(String channelId) {
+    // TODO: implement deleteChannel
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getAllChannels() {
+    // TODO: implement getAllChannels
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> initOptions(NotificationOptions options) {
     // TODO: implement initOptions
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> saveLanguage(Language lan) {
+    // TODO: implement saveLanguage
     throw UnimplementedError();
   }
 
@@ -41,7 +79,7 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    PerfectNotifications perfectNotificationsPlugin = PerfectNotifications();
+    PerfectNotifications perfectNotificationsPlugin = PerfectNotifications.instance;
     MockPerfectNotificationsPlatform fakePlatform = MockPerfectNotificationsPlatform();
     PerfectNotificationsPlatform.instance = fakePlatform;
 

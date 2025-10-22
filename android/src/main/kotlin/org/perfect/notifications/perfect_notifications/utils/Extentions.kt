@@ -1,4 +1,4 @@
-package org.perfect.notifications.perfect_notifications
+package org.perfect.notifications.perfect_notifications.utils
 
 import com.google.firebase.FirebaseOptions
 
@@ -6,6 +6,12 @@ fun Any?.asInt(): Int = when (this) {
     is Int -> this
     null -> 0
     else -> toString().toInt()
+}
+
+fun Any?.asBool(): Boolean = when (this) {
+    is Boolean -> this
+    null -> true
+    else -> false
 }
 
 fun Any?.asLong(): Long = when (this) {

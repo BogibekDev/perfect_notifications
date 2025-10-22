@@ -1,4 +1,4 @@
-package com.example.notification
+package org.perfect.notifications.perfect_notifications.utils
 
 import android.Manifest
 import android.content.Context

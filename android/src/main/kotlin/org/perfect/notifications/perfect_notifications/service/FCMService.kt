@@ -4,18 +4,37 @@ import android.content.Intent
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import org.perfect.notifications.perfect_notifications.models.ChannelDetails
+import org.perfect.notifications.perfect_notifications.models.Importance
+import org.perfect.notifications.perfect_notifications.models.NotificationData
 import org.perfect.notifications.perfect_notifications.models.NotificationDetails
 
 class FCMService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
-        println(message)
         val service = NotificationService(this)
-        val data = message.data
-        val title = message.notification?.title ?: data["title"] ?: "Notification"
-        val body = message.notification?.body ?: data["body"] ?: ""
+        val cacheManager = CacheManager(this)
 
-        val channelId = data["channelId"] ?: "default_channel"
+        val notificationData = NotificationData.parse(message.data)
+        print(notificationData)
+        val locale = cacheManager.getLocale()
+
+        val channelId = notificationData?.sound[locale] ?: "default_channel"
+        val title = notificationData?.title[locale] ?: "Notification"
+        val body = notificationData?.body[locale] ?: ""
+        val sound = notificationData?.sound[locale]
+
+        val channel = ChannelDetails(
+            channelId,
+            "Notification",
+            body,
+            Importance.IMPORTANCE_HIGH,
+            true,
+            sound,
+            true
+        )
+
+        service.recreateNotificationChannel(channel)
 
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -26,8 +45,9 @@ class FCMService : FirebaseMessagingService() {
         val notification = NotificationDetails(
             channelId = channelId,
             title = title,
-            description = body,
+            body = body,
         )
+
         service.showNotification(launchIntent, notification)
     }
 

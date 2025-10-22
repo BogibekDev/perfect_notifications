@@ -27,7 +27,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-  final _perfectNotificationsPlugin = PerfectNotifications();
+  final _perfectNotificationsPlugin = PerfectNotifications.instance;
 
   @override
   void initState() {
@@ -39,16 +39,18 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     Permission.notification.request();
     final details = ChannelDetails(
-      id: 'default_channel',
+      id: 'sound',
       name: 'Chat Notifications',
-      importance: Importance.high.value,
+      importance: Importance.high,
       description: 'Shows notifications for incoming chat messages',
       enableSound: true,
-      soundUri: 'content://settings/system/notification_sound',
+      soundUri: 'happy_birthday',
       enableVibration: true,
     );
 
-    _perfectNotificationsPlugin.initialize(details);
+    _perfectNotificationsPlugin.createChannel(details);
+
+    await _perfectNotificationsPlugin.saveLanguage(Language.russian);
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
@@ -81,14 +83,14 @@ class _MyAppState extends State<MyApp> {
               MaterialButton(
                 onPressed: () {
                   final details = NotificationDetails(
-                    channelId: 'chat_channel',
-                    channelName: 'Chat Notifications',
+                    soundUri: 'happy_birthday.caf',
+                    channelId: 'sound',
                     title: 'New Message',
-                    description:
+                    body:
                         'Ogabek sent you a message: "Hey, are you coming today?" Ogabek sent you a message: "Hey, are you coming today?" Ogabek sent you a message: "Hey, are you coming today?"',
                   );
 
-                  _perfectNotificationsPlugin.showNotification(details);
+                  _perfectNotificationsPlugin.show(details);
                 },
                 child: Text('Show notification'),
               ),

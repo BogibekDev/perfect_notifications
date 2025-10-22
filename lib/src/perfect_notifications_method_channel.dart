@@ -1,51 +1,185 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:perfect_notifications/perfect_notifications.dart';
-import 'package:perfect_notifications/src/methods.dart';
+import 'package:perfect_notifications/src/enum/language.dart';
+import 'package:perfect_notifications/src/enum/methods.dart';
 import 'package:perfect_notifications/src/perfect_notifications_platform_interface.dart';
 
-/// An implementation of [PerfectNotificationsPlatform] that uses method channels.
+/// Method channel implementation - Native platform bilan aloqa
 class MethodChannelPerfectNotifications extends PerfectNotificationsPlatform {
-  /// The method channel used to interact with the native platform.
+  /// Method channel instance
   @visibleForTesting
   final methodChannel = const MethodChannel('perfect_notifications');
 
+  // MARK: - Platform Version
+
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
-    return version;
+    try {
+      final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+      return version;
+    } on PlatformException catch (e) {
+      debugPrint('Error getting platform version: ${e.message}');
+      return null;
+    }
+  }
+
+  // MARK: - Firebase Options
+
+  @override
+  Future<bool> initOptions(NotificationOptions options) async {
+    try {
+      final result = await methodChannel.invokeMethod<bool>(
+        Methods.initOptions.name,
+        options.asMap,
+      );
+      return result ?? false;
+    } on PlatformException catch (e) {
+      debugPrint('Error initializing options: ${e.code} - ${e.message}');
+      throw NotificationException(
+        'Failed to initialize notification options',
+        code: e.code,
+        details: e.details,
+      );
+    } catch (e) {
+      debugPrint('Unexpected error initializing options: $e');
+      throw NotificationException('Unexpected error: $e');
+    }
+  }
+
+  // MARK: - Channel Management
+
+  @override
+  Future<void> createChannel(ChannelDetails details) async {
+    try {
+      await methodChannel.invokeMethod<void>(Methods.createChannel.name, details.toMap());
+    } on PlatformException catch (e) {
+      debugPrint('Error creating channel: ${e.code} - ${e.message}');
+      throw NotificationException(
+        'Failed to create notification channel',
+        code: e.code,
+        details: e.details,
+      );
+    } catch (e) {
+      debugPrint('Unexpected error creating channel: $e');
+      throw NotificationException('Unexpected error: $e');
+    }
   }
 
   @override
-  Future<String?> initialize(ChannelDetails details) async {
-    print("method: ${Methods.initialize.name}");
-    print("details: ${details.toMap()}");
-    final version = await methodChannel.invokeMethod<String?>(
-      Methods.initialize.name,
-      details.toMap(),
-    );
-    return version;
+  Future<void> deleteChannel(String channelId) async {
+    try {
+      await methodChannel.invokeMethod<void>(Methods.deleteChannel.name, {'channelId': channelId});
+    } on PlatformException catch (e) {
+      debugPrint('Error deleting channel: ${e.code} - ${e.message}');
+      throw NotificationException('Failed to delete channel', code: e.code, details: e.details);
+    } catch (e) {
+      debugPrint('Unexpected error deleting channel: $e');
+      throw NotificationException('Unexpected error: $e');
+    }
   }
 
   @override
-  Future<String?> showNotification(NotificationDetails details) async {
-    print("method: ${Methods.showNotification.name}");
-    print("details: ${details.toMap()}");
-    final version = await methodChannel.invokeMethod<String?>(
-      Methods.showNotification.name,
-      details.toMap(),
-    );
-    return version;
+  Future<bool> channelExists(String channelId) async {
+    try {
+      final result = await methodChannel.invokeMethod<bool>(Methods.channelExists.name, {
+        'channelId': channelId,
+      });
+      return result ?? false;
+    } on PlatformException catch (e) {
+      debugPrint('Error checking channel: ${e.code} - ${e.message}');
+      return false;
+    } catch (e) {
+      debugPrint('Unexpected error checking channel: $e');
+      return false;
+    }
   }
 
   @override
-  Future<bool?> initOptions(NotificationOptions options) async {
-    print("method: ${Methods.initOptions.name}");
-    print("details: ${options.asMap}");
-    final isInitialized = await methodChannel.invokeMethod<bool?>(
-      Methods.initOptions.name,
-      options.asMap,
-    );
-    return isInitialized;
+  Future<bool> saveLanguage(Language lan) async {
+    try {
+      final bool? result = await methodChannel.invokeMethod<bool>(Methods.saveLanguage.name, {
+        'locale': lan.locale,
+      });
+
+      return result ?? false;
+    } on PlatformException catch (e) {
+      debugPrint('PlatformException in saveLanguage: ${e.code} - ${e.message}');
+      return false;
+    } catch (e, stack) {
+      debugPrint('Unexpected error in saveLanguage: $e');
+      debugPrint('$stack');
+      return false;
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getAllChannels() async {
+    try {
+      final result = await methodChannel.invokeMethod<List>(Methods.getAllChannels.name);
+      if (result == null) return [];
+
+      return result.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    } on PlatformException catch (e) {
+      debugPrint('Error getting channels: ${e.code} - ${e.message}');
+      return [];
+    } catch (e) {
+      debugPrint('Unexpected error getting channels: $e');
+      return [];
+    }
+  }
+
+  // MARK: - Show Notification
+
+  @override
+  Future<void> showNotification(NotificationDetails details) async {
+    try {
+      await methodChannel.invokeMethod<void>(
+        Methods.showNotification.name,
+        details.toMap(), // ✅ Clean - hech narsa qo'shilmaydi
+      );
+    } on PlatformException catch (e) {
+      debugPrint('Error showing notification: ${e.code} - ${e.message}');
+      throw NotificationException('Failed to show notification', code: e.code, details: e.details);
+    } catch (e) {
+      debugPrint('Unexpected error showing notification: $e');
+      throw NotificationException('Unexpected error: $e');
+    }
+  }
+
+  // MARK: - Cancel Notification
+
+  @override
+  Future<void> cancelNotification(int id) async {
+    try {
+      await methodChannel.invokeMethod<void>(Methods.cancelNotification.name, {'id': id});
+    } on PlatformException catch (e) {
+      debugPrint('Error cancelling notification: ${e.code} - ${e.message}');
+      throw NotificationException(
+        'Failed to cancel notification',
+        code: e.code,
+        details: e.details,
+      );
+    } catch (e) {
+      debugPrint('Unexpected error cancelling notification: $e');
+      throw NotificationException('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<void> cancelAllNotifications() async {
+    try {
+      await methodChannel.invokeMethod<void>(Methods.cancelAllNotifications.name);
+    } on PlatformException catch (e) {
+      debugPrint('Error cancelling all notifications: ${e.code} - ${e.message}');
+      throw NotificationException(
+        'Failed to cancel all notifications',
+        code: e.code,
+        details: e.details,
+      );
+    } catch (e) {
+      debugPrint('Unexpected error cancelling all notifications: $e');
+      throw NotificationException('Unexpected error: $e');
+    }
   }
 }
