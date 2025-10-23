@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
+import com.google.gson.Gson
 import org.perfect.notifications.perfect_notifications.models.ChannelDetails
 import org.perfect.notifications.perfect_notifications.models.NotificationDetails
 
@@ -18,11 +19,18 @@ class NotificationService(private val context: Context) {
     private val notificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+    @SuppressLint("LaunchActivityFromNotification")
     fun showNotification(activityIntent: Intent, data: NotificationDetails) {
-        val pendingIntent = PendingIntent.getActivity(
+        val clickIntent = Intent(context, NotificationReceiver::class.java).apply {
+            action = "org.perfect.notifications.NOTIFICATION_CLICKED"
+            putExtra("data", Gson().toJson(data.payload))
+            putExtra("fromPush", true)
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
             context,
-            0,
-            activityIntent,
+            System.currentTimeMillis().toInt(), // unique ID
+            clickIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 

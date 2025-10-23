@@ -1,6 +1,8 @@
 package org.perfect.notifications.perfect_notifications.service
 
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
@@ -11,6 +13,7 @@ import org.perfect.notifications.perfect_notifications.models.NotificationDetail
 
 class FCMService : FirebaseMessagingService() {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onMessageReceived(message: RemoteMessage) {
         val service = NotificationService(this)
         val cacheManager = CacheManager(this)
@@ -46,6 +49,7 @@ class FCMService : FirebaseMessagingService() {
             channelId = channelId,
             title = title,
             body = body,
+            payload = mapOf("data" to notificationData)
         )
 
         service.showNotification(launchIntent, notification)

@@ -2,6 +2,7 @@
 
 import 'package:perfect_notifications/perfect_notifications.dart';
 import 'package:perfect_notifications/src/enum/language.dart';
+import 'package:perfect_notifications/src/model/notfication_click_event.dart';
 import 'package:perfect_notifications/src/perfect_notifications_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -72,6 +73,11 @@ abstract class PerfectNotificationsPlatform extends PlatformInterface {
   /// Notification ko'rsatish
   Future<void> showNotification(NotificationDetails details) {
     throw UnimplementedError('showNotification() has not been implemented.');
+  }
+
+  /// Notification bosilganda ishlaydi
+  Stream<NotificationClickEvent> get onNotificationClick {
+    throw UnimplementedError('onNotificationClick() has not been implemented.');
   }
 
   // MARK: - Cancel Notification

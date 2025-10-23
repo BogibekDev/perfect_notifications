@@ -43,6 +43,7 @@ class NotificationService: NSObject {
         _ details: NotificationDetails,
         userInfo: [AnyHashable: Any] = [:]
     ) throws {
+        print(" showNotification ishladi")
         // Content yaratish
         let content = createContent(from: details, userInfo: userInfo)
 
@@ -158,6 +159,7 @@ class NotificationService: NSObject {
             addImageAttachment(to: content, imageUrl: imageUrl)
         }
 
+        print("content yaratildi")
         return content
     }
 
@@ -212,6 +214,9 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
+        let userInfo = notification.request.content.userInfo
+        print("salom form notification : \(userInfo)")
+        //handleRemoteNotification(userInfo: notification.request.content.userInfo)
         // iOS 14+
         if #available(iOS 14.0, *) {
             completionHandler([.banner, .list, .sound, .badge])
@@ -227,11 +232,50 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        print("salom form response")
         let userInfo = response.notification.request.content.userInfo
         print("📱 Notification tapped: \(userInfo)")
 
         // TODO: Event'ni Flutter'ga yuborish (EventChannel orqali)
 
         completionHandler()
+    }
+
+    private func handleRemoteNotification(userInfo: [AnyHashable: Any]) {
+
+        NSLog("PerfectNotifications: handleRemoteNotification")
+        guard let data = NotificationData.parse(from: userInfo) else {
+            print("PerfectNotifications: failed to parse NotificationData")
+            return
+        }
+
+        let locale = CacheManager().getLocale()
+
+        let channelId = data.sound[locale] ?? "default_channel"
+        let title = data.title[locale] ?? "Notification"
+        let body = data.body[locale] ?? ""
+        let sound = data.sound[locale] + ".caf"
+
+        let notificationDetails = NotificationDetails(
+            channelId: channelId,
+            title: title,
+            body: body,
+            id: nil,
+            soundUri: sound,
+            subtitle: nil,
+            badge: nil,
+            imageUrl: nil,
+            largeIcon: nil,
+            color: nil,
+            autoCancel: true,
+            silent: false,
+            payload: nil
+        )
+
+        do {
+            try showNotification(notificationDetails, userInfo: userInfo)
+        } catch {
+            print("❌ Failed to show notification: \(error.localizedDescription)")
+        }
     }
 }

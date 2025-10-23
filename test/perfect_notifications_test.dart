@@ -74,6 +74,10 @@ class MockPerfectNotificationsPlatform
     throw UnimplementedError();
   }
 
+  @override
+  // TODO: implement onNotificationClick
+  Stream<NotificationClickEvent> get onNotificationClick => throw UnimplementedError();
+
 
 
 }

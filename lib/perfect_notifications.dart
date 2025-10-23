@@ -1,6 +1,7 @@
 import 'package:perfect_notifications/src/enum/language.dart';
 import 'package:perfect_notifications/src/model/channel_details.dart';
 import 'package:perfect_notifications/src/model/firebase_options.dart';
+import 'package:perfect_notifications/src/model/notfication_click_event.dart';
 import 'package:perfect_notifications/src/model/notification_details.dart';
 import 'package:perfect_notifications/src/model/notification_exception.dart';
 import 'package:perfect_notifications/src/perfect_notifications_platform_interface.dart';
@@ -13,6 +14,7 @@ export 'package:perfect_notifications/src/model/notification_details.dart';
 export 'package:perfect_notifications/src/model/notification_exception.dart';
 export 'package:perfect_notifications/src/model/visibility.dart';
 export 'package:perfect_notifications/src/enum/language.dart';
+export 'package:perfect_notifications/src/model/notfication_click_event.dart';
 
 /// Perfect Notifications Plugin
 ///
@@ -165,7 +167,7 @@ class PerfectNotifications {
   ///     channelId: 'messages',
   ///     title: 'New Message',
   ///     body: 'You have a new message',
-  ///     soundUri: 'custom_sound.caf', // iOS uchun
+  ///     soundUri: 'custom_sound', // iOS uchun
   ///     badge: 5,
   ///   ),
   /// );
@@ -180,6 +182,8 @@ class PerfectNotifications {
 
     await _platform.showNotification(notification);
   }
+
+  Stream<NotificationClickEvent> get onNotificationClick => _platform.onNotificationClick;
 
   /// Bir nechta notification'larni ko'rsatish
   ///

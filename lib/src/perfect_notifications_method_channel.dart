@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:perfect_notifications/perfect_notifications.dart';
 import 'package:perfect_notifications/src/enum/methods.dart';
+import 'package:perfect_notifications/src/model/notfication_click_event.dart';
 import 'package:perfect_notifications/src/perfect_notifications_platform_interface.dart';
 
 /// Method channel implementation - Native platform bilan aloqa
@@ -9,6 +10,8 @@ class MethodChannelPerfectNotifications extends PerfectNotificationsPlatform {
   /// Method channel instance
   @visibleForTesting
   final methodChannel = const MethodChannel('perfect_notifications');
+  final EventChannel _eventChannel =  const EventChannel('perfect_notifications/notification_click');
+  Stream<NotificationClickEvent>? _onNotificationClickStream;
 
   // MARK: - Platform Version
 
@@ -160,6 +163,16 @@ class MethodChannelPerfectNotifications extends PerfectNotificationsPlatform {
       debugPrint('Unexpected error showing notification: $e');
       throw NotificationException('Unexpected error: $e');
     }
+  }
+@override
+  Stream<NotificationClickEvent> get onNotificationClick {
+    _onNotificationClickStream ??= _eventChannel
+        .receiveBroadcastStream()
+        .map((event) => NotificationClickEvent.fromMap(Map<String, dynamic>.from(event)))
+        .handleError((error) {
+      print('Notification click error: $error');
+    });
+    return _onNotificationClickStream!;
   }
 
   // MARK: - Cancel Notification
