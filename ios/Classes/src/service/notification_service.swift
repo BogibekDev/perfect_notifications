@@ -254,7 +254,7 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         let channelId = data.sound[locale] ?? "default_channel"
         let title = data.title[locale] ?? "Notification"
         let body = data.body[locale] ?? ""
-        let sound = data.sound[locale] + ".caf"
+        let sound = (data.sound[locale] ?? "")+"caf"
 
         let notificationDetails = NotificationDetails(
             channelId: channelId,
