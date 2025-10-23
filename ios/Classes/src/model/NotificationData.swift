@@ -35,7 +35,9 @@ struct NotificationData: Codable {
             guard let jsonStr = dataDict[key] as? String,
                   let jsonData = jsonStr.data(using: .utf8),
                   let map = try? JSONDecoder().decode([String: String].self, from: jsonData)
-            else { return [:] }
+            else {
+                return [:]
+            }
             return map
         }
 
@@ -43,9 +45,34 @@ struct NotificationData: Codable {
         return NotificationData(
             title: decodeMap(for: "title"),
             sound: decodeMap(for: "sound"),
-            body:  decodeMap(for: "body"),
+            body: decodeMap(for: "body"),
             image: decodeMap(for: "image"),
-            type:  decodeMap(for: "type")
+            type: decodeMap(for: "type")
+        )
+    }
+
+    func toNotificationDetails(locale: String) -> NotificationDetails {
+        let channelId = sound[locale] ?? "default_channel"
+        let title = title[locale] ?? "Notification"
+        let body = body[locale] ?? ""
+        let sound = (sound[locale] ?? "default") + ".caf"
+        let imageUrl = image[locale]
+        let type = type[locale]
+
+        return NotificationDetails(
+            channelId: channelId,
+            title: title,
+            body: body,
+            id: nil,
+            soundUri: sound,
+            subtitle: nil,
+            badge: nil,
+            imageUrl: imageUrl,
+            largeIcon: nil,
+            color: nil,
+            autoCancel: true,
+            silent: false,
+            payload: type
         )
     }
 }
