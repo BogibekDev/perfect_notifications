@@ -23,8 +23,8 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
 
 
     override init() {
+        // super.init()
         self.notificationService = NotificationService()
-        self.cacheManager = CacheManager()
 
         self.notificationHandler = NotificationHandler(
             notificationService: notificationService
@@ -127,6 +127,19 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
     private func handleInitalize(call: FlutterMethodCall, result: @escaping FlutterResult) {
 
         print("Plugin : handleInitalize : ")
+        
+        guard let appGroupId = argumentParser.getString(arguments: call.arguments, key: "app_group_id") else {
+            resultHandler.error(
+                result,
+                code: "INVALID_ARGUMENTS",
+                message: "app_group_id is required",
+                details: nil
+            )
+            return
+        }
+
+        
+        self.cacheManager = CacheManager(defaults: UserDefaults(suiteName: appGroupId) ?? .standard)
 
         Messaging.messaging().delegate = self
 
@@ -255,7 +268,7 @@ extension PerfectNotificationsPlugin {
     ) {
         print("📬 Remote notification received: \(userInfo)")
 
-        handleRemoteNotification(userInfo: userInfo)
+        //handleRemoteNotification(userInfo: userInfo)
 
         completionHandler(.newData)
     }
@@ -274,7 +287,7 @@ extension PerfectNotificationsPlugin {
         let channelId = data.sound[locale] ?? "default_channel"
         let title = data.title[locale] ?? "Notification"
         let body = data.body[locale] ?? ""
-        let sound = data.sound[locale] + ".caf"
+        let sound = data.sound[locale]
 
         let notificationDetails = NotificationDetails(
             channelId: channelId,

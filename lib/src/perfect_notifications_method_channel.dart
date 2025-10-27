@@ -116,9 +116,11 @@ class MethodChannelPerfectNotifications extends PerfectNotificationsPlatform {
   }
 
   @override
-  Future<bool> initialize() async {
+  Future<bool> initialize({String appGroupId=''}) async {
     try {
-      final bool? result = await methodChannel.invokeMethod<bool>(Methods.initialize.name);
+      final bool? result = await methodChannel.invokeMethod<bool>(Methods.initialize.name,{
+        'app_group_id': appGroupId,
+      });
 
       return result ?? false;
     } on PlatformException catch (e) {

@@ -55,16 +55,25 @@ struct NotificationData: Codable {
         let channelId = sound[locale] ?? "default_channel"
         let title = title[locale] ?? "Notification"
         let body = body[locale] ?? ""
-        let sound = (sound[locale] ?? "default") + ".caf"
+        let rawSound = sound[locale]                      // masalan "happy_birthday" yoki "happy_birthday.caf"
+        let soundName = rawSound.flatMap {
+            $0.hasSuffix(".caf") || $0.hasSuffix(".wav") || $0.hasSuffix(".aiff") ? $0 : $0 + ".caf"
+        }
         let imageUrl = image[locale]
-        let type = type[locale]
+        
+        let payloadMap: [String: AnyCodable]? = type.isEmpty
+                ? nil
+                : type.reduce(into: [String: AnyCodable]()) { acc, kv in
+                    acc[kv.key] = AnyCodable(kv.value)
+                }
+
 
         return NotificationDetails(
             channelId: channelId,
             title: title,
             body: body,
             id: nil,
-            soundUri: sound,
+            soundUri: soundName,
             subtitle: nil,
             badge: nil,
             imageUrl: imageUrl,
@@ -72,7 +81,7 @@ struct NotificationData: Codable {
             color: nil,
             autoCancel: true,
             silent: false,
-            payload: type
+            payload: payloadMap
         )
     }
 }

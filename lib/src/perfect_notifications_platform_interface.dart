@@ -37,7 +37,7 @@ abstract class PerfectNotificationsPlatform extends PlatformInterface {
   }
 
   /// iOS uchun init
-  Future<bool> initialize() {
+  Future<bool> initialize({String appGroupId=''}) {
     throw UnimplementedError('initialize() has not been implemented.');
   }
 

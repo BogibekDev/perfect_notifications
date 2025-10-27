@@ -68,7 +68,7 @@ class MockPerfectNotificationsPlatform
   }
 
   @override
-  Future<bool> initialize() {
+  Future<bool> initialize({String appGroupId=''}) {
     // TODO: implement initialize
 
     throw UnimplementedError();

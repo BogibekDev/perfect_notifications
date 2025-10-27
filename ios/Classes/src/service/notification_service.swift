@@ -43,21 +43,20 @@ class NotificationService: NSObject {
         _ details: NotificationDetails,
         userInfo: [AnyHashable: Any] = [:]
     ) throws {
-        print(" showNotification ishladi")
+        print("Show Notification is working for id: \(String(describing: details.id))")
         // Content yaratish
         let content = createContent(from: details, userInfo: userInfo)
 
-        // Trigger yaratish
-        let trigger = createTrigger()
-
         // Unique ID
         let identifier = details.id.map { String($0) } ?? UUID().uuidString
+        
+        print("Process with continue with this id: \(identifier)")
 
         // Request yaratish
         let request = UNNotificationRequest(
             identifier: identifier,
             content: content,
-            trigger: trigger
+            trigger: nil
         )
 
         // Notification qo'shish
@@ -132,11 +131,11 @@ class NotificationService: NSObject {
         // UserInfo (payload)
         var finalUserInfo = userInfo
 
-        // Payload'dan data qo'shish
-        if let payload = details.payload {
-            let payloadDict = payload.mapValues { $0.value }
-            finalUserInfo.merge(payloadDict) { (_, new) in new }
-        }
+        // // Payload'dan data qo'shish
+        // if let payload = details.payload {
+        //     let payloadDict = payload.mapValues { $0.value }
+        //     finalUserInfo.merge(payloadDict) { (_, new) in new }
+        // }
 
         // NotificationDetails'ni ham qo'shish (tap handler uchun)
         finalUserInfo["channelId"] = details.channelId
@@ -159,14 +158,8 @@ class NotificationService: NSObject {
             addImageAttachment(to: content, imageUrl: imageUrl)
         }
 
-        print("content yaratildi")
+        print("Notification content has been created for id: \(String(describing: details.id))")
         return content
-    }
-
-    /// Trigger yaratish (darhol ko'rsatish)
-    private func createTrigger() -> UNNotificationTrigger {
-        // 0.1 sekund ichida trigger (darhol)
-        return UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
     }
 
     /// Image attachment qo'shish
@@ -214,17 +207,41 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        let userInfo = notification.request.content.userInfo
-        print("salom form notification : \(userInfo)")
-        //handleRemoteNotification(userInfo: notification.request.content.userInfo)
-        // iOS 14+
+        
+        let isRemote = notification.request.trigger is UNPushNotificationTrigger
+        
+        if isRemote {
+            do {
+                let userInfo = notification.request.content.userInfo
+                
+                let data = NotificationData.parse(from: userInfo)
+                let locale = CacheManager().getLocale()
+            
+                let details = data?.toNotificationDetails(locale: locale)
+                
+                print("App language: \(locale)")
+                print("Notification details: \(String(describing: details?.title))")
+                print("Notification details (sound): \(String(describing: details?.soundUri))")
+                
+                if let details {
+                    try showNotification(details, userInfo: userInfo)
+                    completionHandler([])
+                    return
+                }
+            } catch {
+                print("❌ showNotification failed: \(error.localizedDescription)")
+            }
+        }
+        
+        // For locals (or when parsing failed), just present normally
         if #available(iOS 14.0, *) {
             completionHandler([.banner, .list, .sound, .badge])
         } else {
-            // iOS 13 va past
             completionHandler([.alert, .sound, .badge])
         }
     }
+    
+    
 
     /// Notification tap qilinganda
     func userNotificationCenter(
@@ -232,50 +249,17 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        print("salom form response")
+        
         let userInfo = response.notification.request.content.userInfo
         print("📱 Notification tapped: \(userInfo)")
-
+        let data = NotificationData.parse(from: userInfo)
+        let locale = CacheManager().getLocale()
+    
+        let _ = data?.toNotificationDetails(locale: locale)
+        
         // TODO: Event'ni Flutter'ga yuborish (EventChannel orqali)
 
         completionHandler()
-    }
 
-    private func handleRemoteNotification(userInfo: [AnyHashable: Any]) {
-
-        NSLog("PerfectNotifications: handleRemoteNotification")
-        guard let data = NotificationData.parse(from: userInfo) else {
-            print("PerfectNotifications: failed to parse NotificationData")
-            return
-        }
-
-        let locale = CacheManager().getLocale()
-
-        let channelId = data.sound[locale] ?? "default_channel"
-        let title = data.title[locale] ?? "Notification"
-        let body = data.body[locale] ?? ""
-        let sound = (data.sound[locale] ?? "")+".caf"
-
-        let notificationDetails = NotificationDetails(
-            channelId: channelId,
-            title: title,
-            body: body,
-            id: nil,
-            soundUri: sound,
-            subtitle: nil,
-            badge: nil,
-            imageUrl: nil,
-            largeIcon: nil,
-            color: nil,
-            autoCancel: true,
-            silent: false,
-            payload: nil
-        )
-
-        do {
-            try showNotification(notificationDetails, userInfo: userInfo)
-        } catch {
-            print("❌ Failed to show notification: \(error.localizedDescription)")
-        }
     }
 }

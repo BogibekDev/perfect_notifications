@@ -21,7 +21,6 @@ data class NotificationData(
             val imageJson = data["image"]
             val typeDataJson = data["type"]
 
-
             val title: Map<String, String> = gson.fromJson(titleJson, type)
             val body: Map<String, String> = gson.fromJson(bodyJson, type)
             val sound: Map<String, String> = gson.fromJson(soundJson, type)

@@ -138,8 +138,8 @@ class PerfectNotifications {
 
 
   /// Returns: `true` agar  muvaffaqiyatli bo'lsa.
-  Future<bool> initialize() async {
-    return await _platform.initialize();
+  Future<bool> initialize({String appGroupId=''}) async {
+    return await _platform.initialize(appGroupId: appGroupId);
   }
 
 

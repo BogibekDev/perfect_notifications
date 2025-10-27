@@ -13,7 +13,6 @@ import org.perfect.notifications.perfect_notifications.models.NotificationDetail
 
 class FCMService : FirebaseMessagingService() {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onMessageReceived(message: RemoteMessage) {
         val service = NotificationService(this)
         val cacheManager = CacheManager(this)
@@ -26,6 +25,7 @@ class FCMService : FirebaseMessagingService() {
         val title = notificationData?.title[locale] ?: "Notification"
         val body = notificationData?.body[locale] ?: ""
         val sound = notificationData?.sound[locale]
+        val image = notificationData?.image[locale]
 
         val channel = ChannelDetails(
             channelId,
@@ -37,7 +37,7 @@ class FCMService : FirebaseMessagingService() {
             true
         )
 
-        service.recreateNotificationChannel(channel)
+        service.createNotificationChannel(channel)
 
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -49,6 +49,7 @@ class FCMService : FirebaseMessagingService() {
             channelId = channelId,
             title = title,
             body = body,
+            imageUrl = image,
             payload = mapOf("data" to notificationData)
         )
 

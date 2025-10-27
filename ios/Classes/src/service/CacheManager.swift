@@ -15,7 +15,7 @@ class CacheManager {
 
     private let defaults: UserDefaults
 
-    init(defaults: UserDefaults = .perfectNotifications) {
+    init(defaults: UserDefaults = UserDefaults(suiteName: "group.uz.milliypay.app") ?? .standard) {
         self.defaults = defaults
     }
 
