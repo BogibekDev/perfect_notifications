@@ -13,11 +13,10 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
     private var eventSink: FlutterEventSink?
 
     private let notificationService: NotificationService
-    private let cacheManager: CacheManager
-
-    private let notificationHandler: NotificationHandler
-    private let channelHandler: ChannelHandler
-    private let languageHandler: LanguageHandler
+    private var cacheManager: CacheManager? // Make optional
+    private var notificationHandler: NotificationHandler?
+    private var channelHandler: ChannelHandler?
+    private var languageHandler: LanguageHandler?
 
     private let resultHandler = ResultHandler()
 
@@ -28,13 +27,6 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
 
         self.notificationHandler = NotificationHandler(
             notificationService: notificationService
-        )
-        self.channelHandler = ChannelHandler(
-            cacheManager: cacheManager,
-            notificationService: notificationService
-        )
-        self.languageHandler = LanguageHandler(
-            cacheManager: cacheManager
         )
 
         super.init()
@@ -78,46 +70,102 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
             handleInitalize(call: call, result: result)
 
         case "save_language":
+            guard let languageHandler = languageHandler else {
+                resultHandler.error(result, code: "NOT_INITIALIZED", message: "LanguageHandler not initialized", details: nil)
+                return
+            }
             languageHandler.handleSaveLanguage(call: call, result: result)
 
-        case "get_language":
-            languageHandler.handleGetLanguage(call: call, result: result)
+                case "get_language":
+                    guard let languageHandler = languageHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "LanguageHandler not initialized", details: nil)
+                        return
+                    }
+                    languageHandler.handleGetLanguage(call: call, result: result)
 
-        case "get_supported_languages":
-            languageHandler.handleGetSupportedLanguages(call: call, result: result)
+                case "get_supported_languages":
+                    guard let languageHandler = languageHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "LanguageHandler not initialized", details: nil)
+                        return
+                    }
+                    languageHandler.handleGetSupportedLanguages(call: call, result: result)
 
-        case "create_channel":
-            channelHandler.handleCreateChannel(call: call, result: result)
+                case "create_channel":
+                    guard let channelHandler = channelHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "ChannelHandler not initialized", details: nil)
+                        return
+                    }
+                    channelHandler.handleCreateChannel(call: call, result: result)
 
-        case "delete_channel":
-            channelHandler.handleDeleteChannel(call: call, result: result)
+                case "delete_channel":
+                    guard let channelHandler = channelHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "ChannelHandler not initialized", details: nil)
+                        return
+                    }
+                    channelHandler.handleDeleteChannel(call: call, result: result)
 
-        case "channel_exists":
-            channelHandler.handleChannelExists(call: call, result: result)
+                case "channel_exists":
+                    guard let channelHandler = channelHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "ChannelHandler not initialized", details: nil)
+                        return
+                    }
+                    channelHandler.handleChannelExists(call: call, result: result)
 
-        case "get_all_channels":
-            channelHandler.handleGetAllChannels(call: call, result: result)
+                case "get_all_channels":
+                    guard let channelHandler = channelHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "ChannelHandler not initialized", details: nil)
+                        return
+                    }
+                    channelHandler.handleGetAllChannels(call: call, result: result)
 
-        case "show_notification":
-            notificationHandler.handleShowNotification(call: call, result: result)
+                case "show_notification":
+                    guard let notificationHandler = notificationHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "NotificationHandler not initialized", details: nil)
+                        return
+                    }
+                    notificationHandler.handleShowNotification(call: call, result: result)
 
-        case "cancel_notification":
-            notificationHandler.handleCancelNotification(call: call, result: result)
+                case "cancel_notification":
+                    guard let notificationHandler = notificationHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "NotificationHandler not initialized", details: nil)
+                        return
+                    }
+                    notificationHandler.handleCancelNotification(call: call, result: result)
 
-        case "cancel_all_notifications":
-            notificationHandler.handleCancelAll(call: call, result: result)
+                case "cancel_all_notifications":
+                    guard let notificationHandler = notificationHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "NotificationHandler not initialized", details: nil)
+                        return
+                    }
+                    notificationHandler.handleCancelAll(call: call, result: result)
 
-        case "request_permission":
-            notificationHandler.handleRequestPermission(call: call, result: result)
+                case "request_permission":
+                    guard let notificationHandler = notificationHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "NotificationHandler not initialized", details: nil)
+                        return
+                    }
+                    notificationHandler.handleRequestPermission(call: call, result: result)
 
-        case "check_permission":
-            notificationHandler.handleCheckPermission(call: call, result: result)
+                case "check_permission":
+                    guard let notificationHandler = notificationHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "NotificationHandler not initialized", details: nil)
+                        return
+                    }
+                    notificationHandler.handleCheckPermission(call: call, result: result)
 
-        case "set_badge":
-            notificationHandler.handleSetBadge(call: call, result: result)
+                case "set_badge":
+                    guard let notificationHandler = notificationHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "NotificationHandler not initialized", details: nil)
+                        return
+                    }
+                    notificationHandler.handleSetBadge(call: call, result: result)
 
-        case "clear_badge":
-            notificationHandler.handleClearBadge(call: call, result: result)
+                case "clear_badge":
+                    guard let notificationHandler = notificationHandler else {
+                        resultHandler.error(result, code: "NOT_INITIALIZED", message: "NotificationHandler not initialized", details: nil)
+                        return
+                    }
+                    notificationHandler.handleClearBadge(call: call, result: result)
 
         default:
             resultHandler.notImplemented(result)
@@ -128,7 +176,7 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
 
         print("Plugin : handleInitalize : ")
         
-        guard let appGroupId = argumentParser.getString(arguments: call.arguments, key: "app_group_id") else {
+        guard let appGroupId = ArgumentParser().getString(arguments: call.arguments, key: "app_group_id") else {
             resultHandler.error(
                 result,
                 code: "INVALID_ARGUMENTS",
@@ -138,8 +186,10 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        
         self.cacheManager = CacheManager(defaults: UserDefaults(suiteName: appGroupId) ?? .standard)
+        self.notificationHandler = NotificationHandler(notificationService: notificationService)
+        self.channelHandler = ChannelHandler(cacheManager: cacheManager!, notificationService: notificationService)
+        self.languageHandler = LanguageHandler(cacheManager: cacheManager!)
 
         Messaging.messaging().delegate = self
 
@@ -271,44 +321,5 @@ extension PerfectNotificationsPlugin {
         //handleRemoteNotification(userInfo: userInfo)
 
         completionHandler(.newData)
-    }
-
-
-    private func handleRemoteNotification(userInfo: [AnyHashable: Any]) {
-
-        NSLog("PerfectNotifications: handleRemoteNotification")
-        guard let data = NotificationData.parse(from: userInfo) else {
-            print("PerfectNotifications: failed to parse NotificationData")
-            return
-        }
-
-        let locale = cacheManager.getLocale()
-
-        let channelId = data.sound[locale] ?? "default_channel"
-        let title = data.title[locale] ?? "Notification"
-        let body = data.body[locale] ?? ""
-        let sound = data.sound[locale]
-
-        let notificationDetails = NotificationDetails(
-            channelId: channelId,
-            title: title,
-            body: body,
-            id: nil,
-            soundUri: sound,
-            subtitle: nil,
-            badge: nil,
-            imageUrl: nil,
-            largeIcon: nil,
-            color: nil,
-            autoCancel: true,
-            silent: false,
-            payload: nil
-        )
-
-        do {
-            try notificationService.showNotification(notificationDetails, userInfo: userInfo)
-        } catch {
-            print("❌ Failed to show notification: \(error.localizedDescription)")
-        }
     }
 }
