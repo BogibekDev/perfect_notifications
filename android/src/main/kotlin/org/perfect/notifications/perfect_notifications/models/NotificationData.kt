@@ -4,22 +4,22 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 data class NotificationData(
-    val title: Map<String, String> = mapOf(),
-    val sound: Map<String, String> = mapOf(),
-    val body: Map<String, String> = mapOf(),
-    val image: Map<String, String> = mapOf(),
-    val type: Map<String, String> = mapOf(),
+    val coreTitle: Map<String, String> = mapOf(),
+    val coreSound: Map<String, String> = mapOf(),
+    val coreBody: Map<String, String> = mapOf(),
+    val coreImage: Map<String, String> = mapOf(),
+    val coreType: Map<String, String> = mapOf(),
 ) {
     companion object {
         private val gson = Gson()
         private val type = object : TypeToken<Map<String, String>>() {}.type
         fun parse(data: Map<String, String>): NotificationData? {
 
-            val titleJson = data["title"]
-            val bodyJson = data["body"]
-            val soundJson = data["sound"]
-            val imageJson = data["image"]
-            val typeDataJson = data["type"]
+            val titleJson = data["core_title"]
+            val bodyJson = data["core_body"]
+            val soundJson = data["core_sound"]
+            val imageJson = data["core_image"]
+            val typeDataJson = data["core_type"]
 
             val title: Map<String, String> = gson.fromJson(titleJson, type)
             val body: Map<String, String> = gson.fromJson(bodyJson, type)
@@ -28,11 +28,11 @@ data class NotificationData(
             val typeData: Map<String, String> = gson.fromJson(typeDataJson, type)
 
             return NotificationData(
-                title = title,
-                body = body,
-                sound = sound,
-                image = image,
-                type = typeData
+                coreTitle = title,
+                coreBody = body,
+                coreSound = sound,
+                coreImage = image,
+                coreType = typeData
             )
         }
     }

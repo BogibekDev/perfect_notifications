@@ -5,11 +5,11 @@
 import Foundation
 
 struct NotificationData: Codable {
-    let title: [String: String]
-    let sound: [String: String]
-    let body: [String: String]
-    let image: [String: String]
-    let type: [String: String]
+    let coreTitle: [String: String]
+    let coreSound: [String: String]
+    let coreBody: [String: String]
+    let coreImage: [String: String]
+    let coreType: [String: String]
 
     static func parse(from userInfo: [AnyHashable: Any]) -> NotificationData? {
         var dataDict: [String: Any] = [:]
@@ -43,19 +43,19 @@ struct NotificationData: Codable {
 
         // 🔹 3. Obyektni yasaymiz
         return NotificationData(
-            title: decodeMap(for: "title"),
-            sound: decodeMap(for: "sound"),
-            body: decodeMap(for: "body"),
-            image: decodeMap(for: "image"),
-            type: decodeMap(for: "type")
+            coreTitle: decodeMap(for: "core_title"),
+            coreSound: decodeMap(for: "core_sound"),
+            coreBody: decodeMap(for: "core_body"),
+            coreImage: decodeMap(for: "core_image"),
+            coreType: decodeMap(for: "core_type")
         )
     }
 
     func toNotificationDetails(locale: String) -> NotificationDetails {
-        let channelId = sound[locale] ?? "default_channel"
-        let title = title[locale] ?? "Notification"
-        let body = body[locale] ?? ""
-        let rawSound = sound[locale]                      // masalan "happy_birthday" yoki "happy_birthday.caf"
+        let channelId = coreSound[locale] ?? "default_channel"
+        let title = coreTitle[locale] ?? "Notification"
+        let body = coreBody[locale] ?? ""
+        let rawSound = coreSound[locale]                      // masalan "happy_birthday" yoki "happy_birthday.caf"
         let soundName = rawSound.flatMap {
             $0.hasSuffix(".caf") || $0.hasSuffix(".wav") || $0.hasSuffix(".aiff") ? $0 : $0 + ".caf"
         }

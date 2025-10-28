@@ -21,11 +21,11 @@ class FCMService : FirebaseMessagingService() {
         print(notificationData)
         val locale = cacheManager.getLocale()
 
-        val channelId = notificationData?.sound[locale] ?: "default_channel"
-        val title = notificationData?.title[locale] ?: "Notification"
-        val body = notificationData?.body[locale] ?: ""
-        val sound = notificationData?.sound[locale]
-        val image = notificationData?.image[locale]
+        val channelId = notificationData?.coreSound[locale] ?: "default_channel"
+        val title = notificationData?.coreTitle[locale] ?: "Notification"
+        val body = notificationData?.coreBody[locale] ?: ""
+        val sound = notificationData?.coreSound[locale]
+        val image = notificationData?.coreImage[locale]
 
         val channel = ChannelDetails(
             channelId,
