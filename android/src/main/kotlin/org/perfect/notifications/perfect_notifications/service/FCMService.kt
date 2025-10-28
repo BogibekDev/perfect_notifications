@@ -18,7 +18,6 @@ class FCMService : FirebaseMessagingService() {
         val cacheManager = CacheManager(this)
 
         val notificationData = NotificationData.parse(message.data)
-        print(notificationData)
         val locale = cacheManager.getLocale()
 
         val channelId = notificationData?.coreSound[locale] ?: "default_channel"

@@ -15,17 +15,11 @@ data class NotificationData(
         private val type = object : TypeToken<Map<String, String>>() {}.type
         fun parse(data: Map<String, String>): NotificationData? {
 
-            val titleJson = data["core_title"]
-            val bodyJson = data["core_body"]
-            val soundJson = data["core_sound"]
-            val imageJson = data["core_image"]
-            val typeDataJson = data["core_type"]
-
-            val title: Map<String, String> = gson.fromJson(titleJson, type)
-            val body: Map<String, String> = gson.fromJson(bodyJson, type)
-            val sound: Map<String, String> = gson.fromJson(soundJson, type)
-            val image: Map<String, String> = gson.fromJson(imageJson, type)
-            val typeData: Map<String, String> = gson.fromJson(typeDataJson, type)
+            val title: Map<String, String> = safeFromJson(json = data["core_title"])
+            val body: Map<String, String> = safeFromJson(json = data["core_body"])
+            val sound: Map<String, String> = safeFromJson(json = data["core_sound"])
+            val image: Map<String, String> = safeFromJson(json = data["core_image"])
+            val typeData: Map<String, String> = safeFromJson(json = data["core_type"])
 
             return NotificationData(
                 coreTitle = title,
@@ -34,6 +28,16 @@ data class NotificationData(
                 coreImage = image,
                 coreType = typeData
             )
+        }
+
+        private fun safeFromJson(json: String?): Map<String, String> {
+            if (json == null) return mapOf()
+
+            return try {
+                gson.fromJson(json, type)
+            } catch (_: Exception) {
+                mapOf()
+            }
         }
     }
 
