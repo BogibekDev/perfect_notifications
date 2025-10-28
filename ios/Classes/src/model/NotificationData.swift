@@ -59,11 +59,11 @@ struct NotificationData: Codable {
         let soundName = rawSound.flatMap {
             $0.hasSuffix(".caf") || $0.hasSuffix(".wav") || $0.hasSuffix(".aiff") ? $0 : $0 + ".caf"
         }
-        let imageUrl = image[locale]
+        let imageUrl = coreImage[locale]
         
-        let payloadMap: [String: AnyCodable]? = type.isEmpty
+        let payloadMap: [String: AnyCodable]? = coreType.isEmpty
                 ? nil
-                : type.reduce(into: [String: AnyCodable]()) { acc, kv in
+                : coreType.reduce(into: [String: AnyCodable]()) { acc, kv in
                     acc[kv.key] = AnyCodable(kv.value)
                 }
 
