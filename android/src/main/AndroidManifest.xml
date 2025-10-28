@@ -14,14 +14,14 @@
             </intent-filter>
         </service>
 
-        <receiver
-            android:name=".service.NotificationReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="org.perfect.notifications.NOTIFICATION_CLICKED" />
-            </intent-filter>
-        </receiver>
+<!--        <receiver-->
+<!--            android:name=".service.NotificationReceiver"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="false">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="org.perfect.notifications.NOTIFICATION_CLICKED" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
     </application>
 
 </manifest>
