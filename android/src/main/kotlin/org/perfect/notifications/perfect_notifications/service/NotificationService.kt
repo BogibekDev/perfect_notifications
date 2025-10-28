@@ -24,16 +24,16 @@ class NotificationService(private val context: Context) {
 
     @SuppressLint("LaunchActivityFromNotification", "DiscouragedApi")
     fun showNotification(activityIntent: Intent, data: NotificationDetails) {
-        val clickIntent = Intent(context, NotificationReceiver::class.java).apply {
-            action = "org.perfect.notifications.NOTIFICATION_CLICKED"
-            putExtra("data", Gson().toJson(data.payload))
-            putExtra("fromPush", true)
-        }
+//        val clickIntent = Intent(context, NotificationReceiver::class.java).apply {
+//            action = "org.perfect.notifications.NOTIFICATION_CLICKED"
+//            putExtra("data", Gson().toJson(data.payload))
+//            putExtra("fromPush", true)
+//        }
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             System.currentTimeMillis().toInt(), // unique ID
-            clickIntent,
+            activityIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
