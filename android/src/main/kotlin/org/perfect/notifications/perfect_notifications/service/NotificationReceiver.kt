@@ -8,34 +8,39 @@ import android.util.Log
 class NotificationReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "NotificationReceiver"
+        const val ACTION = "org.perfect.notifications.NOTIFICATION_CLICKED"
         var onNotificationClick: ((Map<String, Any?>) -> Unit)? = null
+
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "onReceive called with action: ${intent.action}")
 
-        if (intent.action == "org.perfect.notifications.NOTIFICATION_CLICKED") {
-            val data = intent.getStringExtra("data")
-            val fromPush = intent.getBooleanExtra("fromPush", false)
+        if (intent.action != ACTION) return
 
-            Log.d(TAG, "Notification clicked - data: $data, fromPush: $fromPush")
+        val data = intent.getStringExtra("data")
+        val fromPush = intent.getBooleanExtra("fromPush", false)
 
-            val payload = mapOf(
-                "data" to data,
-                "fromPush" to fromPush,
-                "timestamp" to System.currentTimeMillis()
-            )
+        Log.d(TAG, "Notification clicked - data: $data, fromPush: $fromPush")
 
-            // Callback orqali Flutter ga yuborish
-            onNotificationClick?.invoke(payload)
+        val payload = mapOf(
+            "data" to data,
+            "fromPush" to fromPush,
+            "timestamp" to System.currentTimeMillis()
+        )
 
-            // App ni ochish
-            val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+
+        // Callback orqali Flutter ga yuborish
+        onNotificationClick?.invoke(payload)
+
+        // App ni ochish
+        val launchIntent =
+            context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 putExtra("data", data)
                 putExtra("fromPush", fromPush)
             }
-            launchIntent?.let { context.startActivity(it) }
-        }
+        launchIntent?.let { context.startActivity(it) }
     }
+
 }

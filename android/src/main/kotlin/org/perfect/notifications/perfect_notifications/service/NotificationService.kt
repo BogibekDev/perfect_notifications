@@ -24,22 +24,25 @@ class NotificationService(private val context: Context) {
 
     @SuppressLint("LaunchActivityFromNotification", "DiscouragedApi")
     fun showNotification(activityIntent: Intent, data: NotificationDetails) {
-//        val clickIntent = Intent(context, NotificationReceiver::class.java).apply {
-//            action = "org.perfect.notifications.NOTIFICATION_CLICKED"
-//            putExtra("data", Gson().toJson(data.payload))
-//            putExtra("fromPush", true)
-//        }
+
+
+        val clickIntent = Intent(context, NotificationReceiver::class.java).apply {
+            action = "org.perfect.notifications.NOTIFICATION_CLICKED"
+            putExtra("data", Gson().toJson(data.payload))
+            putExtra("fromPush", true)
+        }
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            System.currentTimeMillis().toInt(), // unique ID
-            activityIntent,
+            data.channelId.hashCode(), // unique ID
+            clickIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
 
         val icon = run {
-            val customResId = context.resources.getIdentifier("ic_stat_name", "drawable", context.packageName)
+            val customResId =
+                context.resources.getIdentifier("ic_stat_name", "drawable", context.packageName)
             if (customResId != 0) customResId else android.R.drawable.presence_online
         }
 

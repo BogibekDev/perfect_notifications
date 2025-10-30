@@ -2,12 +2,18 @@ package org.perfect.notifications.perfect_notifications.models
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.google.gson.annotations.SerializedName
 
 data class NotificationData(
+    @SerializedName("core_title")
     val coreTitle: Map<String, String> = mapOf(),
+    @SerializedName("core_sound")
     val coreSound: Map<String, String> = mapOf(),
+    @SerializedName("core_body")
     val coreBody: Map<String, String> = mapOf(),
+    @SerializedName("core_image")
     val coreImage: Map<String, String> = mapOf(),
+    @SerializedName("core_type")
     val coreType: Map<String, String> = mapOf(),
 ) {
     companion object {
