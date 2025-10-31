@@ -36,6 +36,7 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = PerfectNotificationsPlugin()
 
+
         instance.methodChannel = FlutterMethodChannel(
             name: "perfect_notifications",
             binaryMessenger: registrar.messenger()
@@ -43,7 +44,7 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
         registrar.addMethodCallDelegate(instance, channel: instance.methodChannel)
 
         instance.eventChannel = FlutterEventChannel(
-            name: "perfect_notifications/events",
+            name: "perfect_notifications/notification_click",
             binaryMessenger: registrar.messenger()
         )
         instance.eventChannel?.setStreamHandler(instance)

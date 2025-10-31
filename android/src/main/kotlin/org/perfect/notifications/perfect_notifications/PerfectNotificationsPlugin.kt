@@ -6,22 +6,24 @@ import android.content.Intent
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.plugin.common.PluginRegistry
 import org.perfect.notifications.perfect_notifications.enum.Methods
 import org.perfect.notifications.perfect_notifications.models.ChannelDetails
 import org.perfect.notifications.perfect_notifications.models.NotificationDetails
 import org.perfect.notifications.perfect_notifications.service.CacheManager
+import org.perfect.notifications.perfect_notifications.service.NotificationReceiver
 import org.perfect.notifications.perfect_notifications.service.NotificationService
 import org.perfect.notifications.perfect_notifications.utils.ArgumentParser
 import org.perfect.notifications.perfect_notifications.utils.IntentProvider
 import org.perfect.notifications.perfect_notifications.utils.PermissionHelper
-import org.perfect.notifications.perfect_notifications.service.NotificationReceiver
 
-class PerfectNotificationsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+class PerfectNotificationsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
+    PluginRegistry.NewIntentListener {
 
     private lateinit var channel: MethodChannel
     private lateinit var eventChannel: EventChannel
@@ -39,7 +41,10 @@ class PerfectNotificationsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
         service = NotificationService(context)
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "perfect_notifications")
         channel.setMethodCallHandler(this)
-        eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, "perfect_notifications/notification_click")
+        eventChannel = EventChannel(
+            flutterPluginBinding.binaryMessenger,
+            "perfect_notifications/notification_click"
+        )
         eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                 eventSink = events
@@ -220,32 +225,37 @@ class PerfectNotificationsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
                 "timestamp" to System.currentTimeMillis()
             )
 
-            if (eventSink != null) {
-                eventSink?.success(payload)
+            val sink = eventSink
+            if (sink != null) {
+                sink.success(payload)
             } else {
                 pendingNotificationData = payload
             }
         }
     }
 
-    fun onNewIntent(intent: Intent) {
+    override fun onNewIntent(intent: Intent): Boolean {
         handleIntent(intent)
+        return false
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
         intentProvider.setActivity(activity)
+        binding.addOnNewIntentListener(this)
         handleIntent(binding.activity.intent)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
         activity = null
+
         intentProvider.setActivity(null)
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         activity = binding.activity
         intentProvider.setActivity(activity)
+        binding.addOnNewIntentListener(this)
         handleIntent(binding.activity.intent)
     }
 

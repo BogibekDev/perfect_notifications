@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -21,22 +22,20 @@ import java.net.URL
 class NotificationService(private val context: Context) {
     private val notificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val intentFlag =
+        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
     @SuppressLint("LaunchActivityFromNotification", "DiscouragedApi")
     fun showNotification(activityIntent: Intent, data: NotificationDetails) {
-
-
-        val clickIntent = Intent(context, NotificationReceiver::class.java).apply {
-            action = "org.perfect.notifications.NOTIFICATION_CLICKED"
+        activityIntent.apply {
+            addFlags(intentFlag)
             putExtra("data", Gson().toJson(data.payload))
             putExtra("fromPush", true)
         }
 
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            data.channelId.hashCode(), // unique ID
-            clickIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val pendingIntent = PendingIntent.getActivity(
+            context, System.currentTimeMillis().toInt(),
+            activityIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
 
@@ -60,15 +59,9 @@ class NotificationService(private val context: Context) {
             NotificationCompat.BigPictureStyle().bigPicture(bitmap).bigLargeIcon(null as Bitmap?)
         } else NotificationCompat.BigTextStyle().bigText(data.body)
 
-        val notification = NotificationCompat.Builder(context, data.channelId)
-            .setSmallIcon(icon)
-            .setContentTitle(data.title)
-            .setContentText(data.body)
-            .setStyle(style)
-            .setLargeIcon(bitmap)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
+        val notification = NotificationCompat.Builder(context, data.channelId).setSmallIcon(icon)
+            .setContentTitle(data.title).setContentText(data.body).setStyle(style)
+            .setLargeIcon(bitmap).setContentIntent(pendingIntent).setAutoCancel(true).build()
 
         val id = data.channelId.hashCode()
         notificationManager.notify(id, notification)
@@ -87,15 +80,9 @@ class NotificationService(private val context: Context) {
             enableVibration(data.enableVibration)
 
             if (data.enableSound) {
-                val soundUri = data.soundUri?.let {
-                    val resId = context.resources.getIdentifier(it, "raw", context.packageName)
-                    if (resId != 0) "android.resource://${context.packageName}/$resId".toUri() else null
-                }
+                val soundUri = getSoundUri(data.soundUri)
 
-                val audioAttribute = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
+                val audioAttribute = getAttributes()
 
                 setSound(soundUri, audioAttribute)
             } else {
@@ -150,17 +137,22 @@ class NotificationService(private val context: Context) {
     }
 
     fun getAttributes(): AudioAttributes {
-        return AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
+        return AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
     }
 
     fun getSoundUri(sound: String?): Uri? {
-        return sound?.let {
-            val resId = context.resources.getIdentifier(it, "raw", context.packageName)
-            if (resId != 0) "android.resource://${context.packageName}/$resId".toUri() else null
-        }
+        val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
+        if (sound.isNullOrBlank()) return defaultSound
+
+        val pkg = context.packageName
+        val resId = context.resources.getIdentifier(sound, "raw", pkg)
+
+        if (resId == 0) return defaultSound
+
+        return "android.resource://${context.packageName}/$resId".toUri()
+
 
     }
 }

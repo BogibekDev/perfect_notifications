@@ -3,7 +3,6 @@ package org.perfect.notifications.perfect_notifications.service
 import android.content.Intent
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
 import org.perfect.notifications.perfect_notifications.models.ChannelDetails
 import org.perfect.notifications.perfect_notifications.models.Importance
 import org.perfect.notifications.perfect_notifications.models.NotificationData
@@ -36,11 +35,7 @@ class FCMService : FirebaseMessagingService() {
 
         service.createNotificationChannel(channel)
 
-        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            putExtra("data", Gson().toJson(notificationData))
-            putExtra("fromPush", true)
-        } ?: Intent() // fallback
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent()
 
         val notification = NotificationDetails(
             channelId = channelId,
