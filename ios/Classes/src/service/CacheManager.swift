@@ -44,7 +44,7 @@ class CacheManager {
     //
     /// - Returns:
     func getSoundEnable() -> Bool {
-        return defaults.bool(forKey: Keys.soundEnable)
+        return boolOptional(forKey: Keys.soundEnable) ?? true;
     }
 
     // MARK: - Channels (iOS'da ishlatilmaydi, lekin compatibility uchun)
@@ -125,9 +125,8 @@ class CacheManager {
         defaults.synchronize()
     }
 
-    /// Bool o'qish
-    func bool(forKey key: String) -> Bool {
-        return defaults.bool(forKey: key)
+    func boolOptional(forKey key: String) -> Bool? {
+        return defaults.object(forKey: key) as? Bool
     }
 
     /// Dictionary saqlash

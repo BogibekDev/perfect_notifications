@@ -61,7 +61,7 @@ class CacheManager(private val context: Context) {
 
     fun getSoundEnable(): Boolean {
         val prefs = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
-        return prefs.getBoolean(KEY_SOUND_ENABLE, false)
+        return prefs.getBoolean(KEY_SOUND_ENABLE, true)
     }
 
 }
