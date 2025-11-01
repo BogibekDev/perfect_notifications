@@ -135,6 +135,9 @@ class PerfectNotifications {
     return await _platform.saveLanguage(lan);
   }
 
+  Future<bool> changeSoundEnable(bool enable) async {
+    return await _platform.changeSoundEnable(enable);
+  }
 
 
   /// Returns: `true` agar  muvaffaqiyatli bo'lsa.

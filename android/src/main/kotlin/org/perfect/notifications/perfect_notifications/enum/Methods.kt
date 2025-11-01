@@ -6,6 +6,8 @@ object Methods {
     const val INIT_OPTIONS           = "init_options"
     const val SAVE_LANGUAGE           = "save_language"
 
+    const val CHANGE_SOUND_ENABLE     = "change_sound_enable"
+
     // Channels
     const val CREATE_CHANNEL         = "create_channel"
     const val DELETE_CHANNEL         = "delete_channel"

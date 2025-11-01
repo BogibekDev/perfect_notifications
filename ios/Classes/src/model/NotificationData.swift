@@ -51,7 +51,7 @@ struct NotificationData: Codable {
         )
     }
 
-    func toNotificationDetails(locale: String) -> NotificationDetails {
+    func toNotificationDetails(locale: String,soundEnable:Bool) -> NotificationDetails {
         let channelId = coreSound[locale] ?? "default_channel"
         let title = coreTitle[locale] ?? "Notification"
         let body = coreBody[locale] ?? ""
@@ -59,6 +59,7 @@ struct NotificationData: Codable {
         let soundName = rawSound.flatMap {
             $0.hasSuffix(".caf") || $0.hasSuffix(".wav") || $0.hasSuffix(".aiff") ? $0 : $0 + ".wav"
         }
+        let sound = soundEnable ? soundName : "default"
         let imageUrl = coreImage[locale]
         
         let payloadMap: [String: AnyCodable]? = coreType.isEmpty
@@ -73,7 +74,7 @@ struct NotificationData: Codable {
             title: title,
             body: body,
             id: nil,
-            soundUri: soundName,
+            soundUri: sound,
             subtitle: nil,
             badge: nil,
             imageUrl: imageUrl,

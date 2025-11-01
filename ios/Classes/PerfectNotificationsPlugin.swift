@@ -70,6 +70,25 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
         case "initialize":
             handleInitalize(call: call, result: result)
 
+        case "change_sound_enable":
+
+            guard let enable = ArgumentParser().getBool(arguments: call.arguments, key: "enable") else {
+                resultHandler.error(
+                    result,
+                    code: "INVALID_ARGUMENTS",
+                    message: "enable is required",
+                    details: nil
+                )
+                return
+            }
+
+
+
+            // Save
+            self.cacheManager?.changeSoundEnable(enable)
+
+            resultHandler.success(result, data: true)
+
         case "save_language":
             guard let languageHandler = languageHandler else {
                 resultHandler.error(result, code: "NOT_INITIALIZED", message: "LanguageHandler not initialized", details: nil)
@@ -77,49 +96,49 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
             }
             languageHandler.handleSaveLanguage(call: call, result: result)
 
-                case "get_language":
+        case "get_language":
                     guard let languageHandler = languageHandler else {
                         resultHandler.error(result, code: "NOT_INITIALIZED", message: "LanguageHandler not initialized", details: nil)
                         return
                     }
                     languageHandler.handleGetLanguage(call: call, result: result)
 
-                case "get_supported_languages":
+        case "get_supported_languages":
                     guard let languageHandler = languageHandler else {
                         resultHandler.error(result, code: "NOT_INITIALIZED", message: "LanguageHandler not initialized", details: nil)
                         return
                     }
                     languageHandler.handleGetSupportedLanguages(call: call, result: result)
 
-                case "create_channel":
+        case "create_channel":
                     guard let channelHandler = channelHandler else {
                         resultHandler.error(result, code: "NOT_INITIALIZED", message: "ChannelHandler not initialized", details: nil)
                         return
                     }
                     channelHandler.handleCreateChannel(call: call, result: result)
 
-                case "delete_channel":
+        case "delete_channel":
                     guard let channelHandler = channelHandler else {
                         resultHandler.error(result, code: "NOT_INITIALIZED", message: "ChannelHandler not initialized", details: nil)
                         return
                     }
                     channelHandler.handleDeleteChannel(call: call, result: result)
 
-                case "channel_exists":
+        case "channel_exists":
                     guard let channelHandler = channelHandler else {
                         resultHandler.error(result, code: "NOT_INITIALIZED", message: "ChannelHandler not initialized", details: nil)
                         return
                     }
                     channelHandler.handleChannelExists(call: call, result: result)
 
-                case "get_all_channels":
+        case "get_all_channels":
                     guard let channelHandler = channelHandler else {
                         resultHandler.error(result, code: "NOT_INITIALIZED", message: "ChannelHandler not initialized", details: nil)
                         return
                     }
                     channelHandler.handleGetAllChannels(call: call, result: result)
 
-                case "show_notification":
+        case "show_notification":
                     guard let notificationHandler = notificationHandler else {
                         resultHandler.error(result, code: "NOT_INITIALIZED", message: "NotificationHandler not initialized", details: nil)
                         return

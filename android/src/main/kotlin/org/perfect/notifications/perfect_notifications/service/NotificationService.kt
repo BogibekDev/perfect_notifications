@@ -12,6 +12,7 @@ import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import com.google.gson.Gson
@@ -71,9 +72,6 @@ class NotificationService(private val context: Context) {
     @SuppressLint("WrongConstant")
     fun createNotificationChannel(data: ChannelDetails) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-
-        val existed = channelExists(data.id)
-        if (existed) return
 
         val channel = NotificationChannel(data.id, data.name, data.importance).apply {
             description = data.description
@@ -144,10 +142,17 @@ class NotificationService(private val context: Context) {
     fun getSoundUri(sound: String?): Uri? {
         val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
-        if (sound.isNullOrBlank()) return defaultSound
+        val enable = CacheManager(context).getSoundEnable()
+
+        Log.d("NotificationService", "getSoundUri: $enable")
+
+        if (sound.isNullOrBlank() || !enable) return defaultSound
 
         val pkg = context.packageName
-        val resId = context.resources.getIdentifier(sound, "raw", pkg)
+
+        val soundName = sound.removeSuffix(".wav").removeSuffix(".caf").removeSuffix(".aiff")
+
+        val resId = context.resources.getIdentifier(soundName, "raw", pkg)
 
         if (resId == 0) return defaultSound
 

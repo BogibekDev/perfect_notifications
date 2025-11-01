@@ -75,6 +75,7 @@ class PerfectNotificationsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
         when (call.method) {
             Methods.INITIALIZE -> result.success(true)
             Methods.SAVE_LANGUAGE -> saveLanguage(call, result)
+            Methods.CHANGE_SOUND_ENABLE -> changeSoundEnable(call, result)
 
             Methods.GET_PLATFORM_VERSION -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
             Methods.INIT_OPTIONS -> initOptions(result)
@@ -103,6 +104,21 @@ class PerfectNotificationsPlugin : FlutterPlugin, MethodCallHandler, ActivityAwa
         result.success(true)
     }
 
+    private fun changeSoundEnable(call: MethodCall, result: MethodChannel.Result) {
+        try {
+            val enable = call.argument<Boolean>("enable") ?: run {
+                result.error("INVALID_ARGUMENTS", "enable is required", null)
+                return
+            }
+            val cache = CacheManager(context)
+            cache.changeSoundEnable(enable)
+            result.success(true)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            result.error("change Sound Enable", e.message, null)
+        }
+    }
     private fun saveLanguage(call: MethodCall, result: MethodChannel.Result) {
         try {
             val locale = call.argument<String>("locale") ?: run {

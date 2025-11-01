@@ -1,6 +1,7 @@
 package org.perfect.notifications.perfect_notifications.service
 
 import android.content.Context
+import android.util.Log
 import androidx.core.content.edit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -14,6 +15,8 @@ class CacheManager(private val context: Context) {
         private const val PREF = "perfect_notifications_prefs"
         private const val KEY_CHANNELS_JSON = "channels_json"
         private const val KEY_LOCALE = "locale"
+
+        private const val KEY_SOUND_ENABLE = "sound_enable"
     }
 
     private val gson = Gson()
@@ -44,10 +47,21 @@ class CacheManager(private val context: Context) {
         prefs.edit { putString(KEY_LOCALE, locale) }
     }
 
+    fun changeSoundEnable(enable: Boolean) {
+        val prefs = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+        prefs.edit { putBoolean(KEY_SOUND_ENABLE, enable) }
+        Log.d("Cache Manager", "changeSoundEnable: $enable")
+    }
+
     fun getLocale(): String {
         val prefs = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
         return prefs.getString(KEY_LOCALE, LanguageEnum.UzbekLatin.locale)
             ?: LanguageEnum.UzbekLatin.locale
+    }
+
+    fun getSoundEnable(): Boolean {
+        val prefs = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_SOUND_ENABLE, false)
     }
 
 }

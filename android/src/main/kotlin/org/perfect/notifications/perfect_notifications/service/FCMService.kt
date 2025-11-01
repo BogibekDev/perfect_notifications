@@ -23,8 +23,11 @@ class FCMService : FirebaseMessagingService() {
         val sound = notificationData?.coreSound[locale]
         val image = notificationData?.coreImage[locale]
 
+        val enable = cacheManager.getSoundEnable()
+        val id = if (enable) "$channelId-enable" else "$channelId-disable"
+
         val channel = ChannelDetails(
-            channelId,
+            id,
             "Notification",
             body,
             Importance.IMPORTANCE_HIGH,
@@ -38,7 +41,7 @@ class FCMService : FirebaseMessagingService() {
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent()
 
         val notification = NotificationDetails(
-            channelId = channelId,
+            channelId = id,
             title = title,
             body = body,
             imageUrl = image,

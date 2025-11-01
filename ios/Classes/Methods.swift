@@ -10,6 +10,7 @@ enum Methods {
     static let GET_PLATFORM_VERSION = "getPlatformVersion"
     static let INIT_OPTIONS         = "init_options"
     static let SAVE_LANGUAGE        = "save_language"
+    static let CHANGE_SOUND_ENABLE  = "change_sound_enable"
 
     // Channels
     static let CREATE_CHANNEL       = "create_channel"

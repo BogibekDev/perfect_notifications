@@ -36,6 +36,10 @@ abstract class PerfectNotificationsPlatform extends PlatformInterface {
     throw UnimplementedError('saveLanguage() has not been implemented.');
   }
 
+  Future<bool> changeSoundEnable(bool enable) {
+    throw UnimplementedError('changeSoundEnable() has not been implemented.');
+  }
+
   /// iOS uchun init
   Future<bool> initialize({String appGroupId=''}) {
     throw UnimplementedError('initialize() has not been implemented.');

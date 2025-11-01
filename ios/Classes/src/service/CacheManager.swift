@@ -9,6 +9,7 @@ class CacheManager {
         static let locale = "perfect_notifications_locale"
         static let channels = "perfect_notifications_channels"
         static let defaultChannelId = "perfect_notifications_default_channel"
+        static let soundEnable = "sound_enable"
     }
 
     // MARK: - UserDefaults
@@ -33,6 +34,17 @@ class CacheManager {
     /// - Returns: Saqlangan locale yoki default (uz)
     func getLocale() -> String {
         return defaults.string(forKey: Keys.locale) ?? "uz"
+    }
+
+    func changeSoundEnable(_ enable: Bool) {
+        defaults.set(enable, forKey: Keys.soundEnable)
+        defaults.synchronize()
+    }
+
+    //
+    /// - Returns:
+    func getSoundEnable() -> Bool {
+        return defaults.bool(forKey: Keys.soundEnable)
     }
 
     // MARK: - Channels (iOS'da ishlatilmaydi, lekin compatibility uchun)

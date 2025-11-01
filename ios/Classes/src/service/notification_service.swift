@@ -216,8 +216,9 @@ extension NotificationService: UNUserNotificationCenterDelegate {
                 
                 let data = NotificationData.parse(from: userInfo)
                 let locale = CacheManager().getLocale()
+                let soundEnabled = CacheManager().getSoundEnable()
             
-                let details = data?.toNotificationDetails(locale: locale)
+                let details = data?.toNotificationDetails(locale: locale,soundEnable: soundEnabled)
                 
                 print("App language: \(locale)")
                 print("Notification details: \(String(describing: details?.title))")
@@ -255,7 +256,7 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         let data = NotificationData.parse(from: userInfo)
         let locale = CacheManager().getLocale()
     
-        let _ = data?.toNotificationDetails(locale: locale)
+        let _ = data?.toNotificationDetails(locale: locale,soundEnable: false)
         
         // TODO: Event'ni Flutter'ga yuborish (EventChannel orqali)
 

@@ -78,6 +78,12 @@ class MockPerfectNotificationsPlatform
   // TODO: implement onNotificationClick
   Stream<NotificationClickEvent> get onNotificationClick => throw UnimplementedError();
 
+  @override
+  Future<bool> changeSoundEnable(bool enable) {
+    // TODO: implement changeSoundEnable
+    throw UnimplementedError();
+  }
+
 
 
 }

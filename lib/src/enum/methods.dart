@@ -9,6 +9,8 @@ enum Methods {
   /// save language
   saveLanguage('save_language'),
 
+  changeSoundEnable('change_sound_enable'),
+
   /// Channel yaratish
   createChannel('create_channel'),
 
