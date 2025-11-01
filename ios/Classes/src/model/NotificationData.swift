@@ -55,9 +55,9 @@ struct NotificationData: Codable {
         let channelId = coreSound[locale] ?? "default_channel"
         let title = coreTitle[locale] ?? "Notification"
         let body = coreBody[locale] ?? ""
-        let rawSound = coreSound[locale]                      // masalan "happy_birthday" yoki "happy_birthday.caf"
+        let rawSound = coreSound[locale]
         let soundName = rawSound.flatMap {
-            $0.hasSuffix(".caf") || $0.hasSuffix(".wav") || $0.hasSuffix(".aiff") ? $0 : $0 + ".caf"
+            $0.hasSuffix(".caf") || $0.hasSuffix(".wav") || $0.hasSuffix(".aiff") ? $0 : $0 + ".wav"
         }
         let imageUrl = coreImage[locale]
         
