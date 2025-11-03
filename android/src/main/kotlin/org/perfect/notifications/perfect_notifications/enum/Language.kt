@@ -12,7 +12,8 @@ enum class LanguageEnum(val locale: String) {
     Armenian("hy"),
     Georgian("ka"),
     Ukrainian("uk"),
-    English("en");
+    English("en"),
+    OzbekCyrillic("oz");
 
     companion object {
         fun fromLocale(locale: String): LanguageEnum {

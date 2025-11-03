@@ -171,6 +171,7 @@ enum LanguageEnum: String {
     case georgian = "ka"
     case ukrainian = "uk"
     case english = "en"
+    case ozbekCyrilic = "oz"
 
     /// Locale'dan enum yaratish
     static func from(locale: String) -> LanguageEnum {
@@ -192,6 +193,7 @@ enum LanguageEnum: String {
         case .georgian: return "ქართული"
         case .ukrainian: return "Українська"
         case .english: return "English"
+        case .ozbekCyrilic: return "Ўзбек (Кирилл)"
         }
     }
 }

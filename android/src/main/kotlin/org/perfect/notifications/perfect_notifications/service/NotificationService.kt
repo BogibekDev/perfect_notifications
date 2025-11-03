@@ -18,6 +18,7 @@ import androidx.core.net.toUri
 import com.google.gson.Gson
 import org.perfect.notifications.perfect_notifications.models.ChannelDetails
 import org.perfect.notifications.perfect_notifications.models.NotificationDetails
+import org.perfect.notifications.perfect_notifications.utils.PermissionHelper
 import java.net.URL
 
 class NotificationService(private val context: Context) {
@@ -28,6 +29,8 @@ class NotificationService(private val context: Context) {
 
     @SuppressLint("LaunchActivityFromNotification", "DiscouragedApi")
     fun showNotification(activityIntent: Intent, data: NotificationDetails) {
+        if (!PermissionHelper.hasPermission(context)) return
+
         activityIntent.apply {
             addFlags(intentFlag)
             putExtra("data", Gson().toJson(data.payload))

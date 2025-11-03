@@ -10,7 +10,8 @@ enum Language {
   armenian('hy'),
   georgian('ka'),
   ukrainian('uk'),
-  english('en');
+  english('en'),
+  ozbekCyrillic('oz');
 
   const Language(this.locale);
 
