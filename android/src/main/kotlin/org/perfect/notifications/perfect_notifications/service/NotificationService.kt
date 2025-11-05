@@ -67,7 +67,7 @@ class NotificationService(private val context: Context) {
             .setContentTitle(data.title).setContentText(data.body).setStyle(style)
             .setLargeIcon(bitmap).setContentIntent(pendingIntent).setAutoCancel(true).build()
 
-        val id = data.channelId.hashCode()
+        val id = System.currentTimeMillis().hashCode()
         notificationManager.notify(id, notification)
     }
 
