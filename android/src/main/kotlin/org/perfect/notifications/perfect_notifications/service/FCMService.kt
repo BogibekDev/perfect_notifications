@@ -3,6 +3,7 @@ package org.perfect.notifications.perfect_notifications.service
 import android.content.Intent
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import org.perfect.notifications.perfect_notifications.PerfectNotificationsPlugin
 import org.perfect.notifications.perfect_notifications.models.ChannelDetails
 import org.perfect.notifications.perfect_notifications.models.Importance
 import org.perfect.notifications.perfect_notifications.models.NotificationData
@@ -11,6 +12,8 @@ import org.perfect.notifications.perfect_notifications.models.NotificationDetail
 class FCMService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
+        LogService.log(message.data, "data")
+
         val service = NotificationService(this)
         val cacheManager = CacheManager(this)
 

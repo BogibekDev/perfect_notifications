@@ -29,6 +29,8 @@ struct NotificationData: Codable {
                 }
             }
         }
+        
+        LogService.log(dataDict, tag: "data")
 
         // 🔹 2. Har bir field JSON string ko‘rinishida keladi → [String:String] ga parse qilamiz
         func decodeMap(for key: String) -> [String: String] {
