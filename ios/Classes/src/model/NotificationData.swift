@@ -30,7 +30,7 @@ struct NotificationData: Codable {
             }
         }
         
-        LogService.log(dataDict, tag: "data")
+        LogService.info("Received data: \(dataDict)", tag: "data")
 
         // 🔹 2. Har bir field JSON string ko‘rinishida keladi → [String:String] ga parse qilamiz
         func decodeMap(for key: String) -> [String: String] {
@@ -38,6 +38,7 @@ struct NotificationData: Codable {
                   let jsonData = jsonStr.data(using: .utf8),
                   let map = try? JSONDecoder().decode([String: String].self, from: jsonData)
             else {
+                LogService.error("Missing key '\(key)' in notification data.", tag: "parsing")
                 return [:]
             }
             return map
@@ -54,15 +55,15 @@ struct NotificationData: Codable {
     }
 
     func toNotificationDetails(locale: String,soundEnable:Bool) -> NotificationDetails {
-        let channelId = coreSound[locale] ?? "default_channel"
-        let title = coreTitle[locale] ?? "Notification"
-        let body = coreBody[locale] ?? ""
-        let rawSound = coreSound[locale]
+        let channelId = localizedCore(core: coreSound, locale: locale, key: "core_sound") ?? "default_channel"
+        let title = localizedCore(core: coreTitle, locale: locale, key: "core_title") ?? "Notification"
+        let body = localizedCore(core: coreBody, locale: locale, key: "core_body") ?? ""
+        let rawSound = localizedCore(core: coreSound, locale: locale, key: "core_sound")
         let soundName = rawSound.flatMap {
             $0.hasSuffix(".caf") || $0.hasSuffix(".wav") || $0.hasSuffix(".aiff") ? $0 : $0 + ".wav"
         }
         let sound = soundEnable ? soundName : "default"
-        let imageUrl = coreImage[locale]
+        let imageUrl = localizedCore(core: coreImage, locale: locale, key: "core_image")
         
         let payloadMap: [String: AnyCodable]? = coreType.isEmpty
                 ? nil
@@ -86,5 +87,16 @@ struct NotificationData: Codable {
             silent: false,
             payload: payloadMap
         )
+    }
+    
+    func localizedCore(core: [String: String], locale: String, key: String) -> String? {
+        let result = core[locale]
+        
+        if result == nil {
+            LogService.error("Missing locale '\(locale)' for '\(key)' field.", tag: "Localized")
+        }
+        
+        return result
+       
     }
 }

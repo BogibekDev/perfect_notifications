@@ -12,7 +12,6 @@ import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import com.google.gson.Gson
@@ -29,7 +28,13 @@ class NotificationService(private val context: Context) {
 
     @SuppressLint("LaunchActivityFromNotification", "DiscouragedApi")
     fun showNotification(activityIntent: Intent, data: NotificationDetails) {
-        if (!PermissionHelper.hasPermission(context)) return
+        if (!PermissionHelper.hasPermission(context)) {
+            LogService.error(
+                Exception("Notification permission denied — unable to display notification."),
+                "showNotification"
+            )
+            return
+        }
 
         activityIntent.apply {
             addFlags(intentFlag)
@@ -46,7 +51,13 @@ class NotificationService(private val context: Context) {
         val icon = run {
             val customResId =
                 context.resources.getIdentifier("ic_stat_name", "drawable", context.packageName)
-            if (customResId != 0) customResId else android.R.drawable.presence_online
+            if (customResId != 0) customResId else {
+                LogService.error(
+                    Exception("Notification icon resource 'ic_stat_name' not found. Using default system icon."),
+                    "icon"
+                )
+                android.R.drawable.presence_online
+            }
         }
 
 
@@ -56,6 +67,10 @@ class NotificationService(private val context: Context) {
                 BitmapFactory.decodeStream(url.openConnection().getInputStream())
             } else null
         } catch (e: Exception) {
+            LogService.error(
+                Exception("Failed to load image from URL: ${data.imageUrl ?: "null"} — ${e.message}"),
+                "bitmap"
+            )
             null
         }
 
@@ -69,6 +84,10 @@ class NotificationService(private val context: Context) {
 
         val id = System.currentTimeMillis().hashCode()
         notificationManager.notify(id, notification)
+        LogService.success(
+            "Notification shown with title: '${data.title}' and id: $id",
+            "showNotification"
+        )
     }
 
 
@@ -92,6 +111,10 @@ class NotificationService(private val context: Context) {
         }
 
         notificationManager.createNotificationChannel(channel)
+        LogService.success(
+            "Notification channel created → id: '${data.id}'",
+            "createNotificationChannel"
+        )
     }
 
 
@@ -147,7 +170,7 @@ class NotificationService(private val context: Context) {
 
         val enable = CacheManager(context).getSoundEnable()
 
-        Log.d("NotificationService", "getSoundUri: $enable")
+        LogService.info("Custom notification sound is enabled: $enable", "Sound Enabled")
 
         if (sound.isNullOrBlank() || !enable) return defaultSound
 
@@ -157,7 +180,13 @@ class NotificationService(private val context: Context) {
 
         val resId = context.resources.getIdentifier(soundName, "raw", pkg)
 
-        if (resId == 0) return defaultSound
+        if (resId == 0) {
+            LogService.error(
+                Exception("Failed to locate custom sound '$soundName' in /res/raw. Falling back to default sound."),
+                "Sound"
+            )
+            return defaultSound
+        }
 
         return "android.resource://${context.packageName}/$resId".toUri()
 

@@ -32,6 +32,25 @@ class NotificationService: NSObject {
             }
         }
     }
+    
+    func hasPermission(completion: @escaping (Bool) -> Void) {
+        center.getNotificationSettings { settings in
+            switch settings.authorizationStatus {
+            case .authorized, .provisional, .ephemeral:
+                LogService.info("Notification permission granted.", tag: "Permission")
+                completion(true)
+            case .denied:
+                LogService.error("Notification permission denied — unable to display notifications.", tag: "Permission")
+                completion(false)
+            case .notDetermined:
+                LogService.info("Notification permission not determined.", tag: "Permission")
+                completion(false)
+            @unknown default:
+                LogService.error("Unknown authorization status for notification permission.", tag: "Permission")
+                completion(false)
+            }
+        }
+    }
 
     // MARK: - Show Notification
 
@@ -43,30 +62,37 @@ class NotificationService: NSObject {
         _ details: NotificationDetails,
         userInfo: [AnyHashable: Any] = [:]
     ) throws {
-        print("Show Notification is working for id: \(String(describing: details.id))")
-        // Content yaratish
-        let content = createContent(from: details, userInfo: userInfo)
-
-        // Unique ID
-        let identifier = details.id.map { String($0) } ?? UUID().uuidString
         
-        print("Process with continue with this id: \(identifier)")
-
-        // Request yaratish
-        let request = UNNotificationRequest(
-            identifier: identifier,
-            content: content,
-            trigger: nil
-        )
-
-        // Notification qo'shish
-        center.add(request) { error in
-            if let error = error {
-                print("❌ Failed to show notification: \(error.localizedDescription)")
-            } else {
-                print("✅ Notification shown: \(details.title)")
+        hasPermission{ granted in
+            guard granted else {
+                return
             }
+
+            // Content yaratish
+            let content = self.createContent(from: details, userInfo: userInfo)
+
+            // Unique ID
+            let identifier = details.id.map { String($0) } ?? UUID().uuidString
+            
+            // Request yaratish
+            let request = UNNotificationRequest(
+                identifier: identifier,
+                content: content,
+                trigger: nil
+            )
+
+            // Notification qo'shish
+            self.center.add(request) { error in
+                if let error = error {
+                    LogService.error("❌ Failed to show notification: \(error.localizedDescription)",tag:"showNotification")
+                } else {
+                    LogService.success("Notification shown: \(details.title)",tag:"showNotification")
+                }
+            }
+            
+            
         }
+       
     }
 
     // MARK: - Cancel Notification
@@ -131,12 +157,7 @@ class NotificationService: NSObject {
         // UserInfo (payload)
         var finalUserInfo = userInfo
 
-        // // Payload'dan data qo'shish
-        // if let payload = details.payload {
-        //     let payloadDict = payload.mapValues { $0.value }
-        //     finalUserInfo.merge(payloadDict) { (_, new) in new }
-        // }
-
+    
         // NotificationDetails'ni ham qo'shish (tap handler uchun)
         finalUserInfo["channelId"] = details.channelId
         finalUserInfo["notificationId"] = details.id
@@ -221,8 +242,6 @@ extension NotificationService: UNUserNotificationCenterDelegate {
                 let details = data?.toNotificationDetails(locale: locale,soundEnable: soundEnabled)
                 
                 print("App language: \(locale)")
-                print("Notification details: \(String(describing: details?.title))")
-                print("Notification details (sound): \(String(describing: details?.soundUri))")
                 
                 if let details {
                     try showNotification(details, userInfo: userInfo)
