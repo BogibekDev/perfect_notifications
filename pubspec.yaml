@@ -1,7 +1,7 @@
 name: perfect_notifications
 description: "A new Flutter plugin for Android and iOS."
-version: 0.0.1
-homepage:
+version: 0.0.11
+homepage: https://github.com/BogibekDev/perfect_notifications
 
 environment:
   sdk: ^3.8.1
