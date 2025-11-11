@@ -1,11 +1,16 @@
 package org.perfect.notifications.perfect_notifications.models
 
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
 import org.perfect.notifications.perfect_notifications.service.LogService
 
 data class NotificationData(
+    val defaultTitle: String?,
+    val defaultBody: String?,
+    val defaultSound: String?,
+    val defaultImage: String?,
+
     @SerializedName("core_title")
     val coreTitle: Map<String, String> = mapOf(),
     @SerializedName("core_sound")
@@ -29,17 +34,22 @@ data class NotificationData(
             val typeData: Map<String, String> = safeFromJson(json = data["core_type"], "core_type")
 
             return NotificationData(
+                defaultTitle = data["default_title"],
+                defaultBody = data["default_body"],
+                defaultSound = data["default_sound"],
+                defaultImage = data["default_image"],
+
                 coreTitle = title,
                 coreBody = body,
                 coreSound = sound,
                 coreImage = image,
-                coreType = typeData
+                coreType = typeData,
             )
         }
 
         private fun safeFromJson(json: String?, key: String): Map<String, String> {
             if (json == null) {
-                LogService.error(Exception("Missing key: '$key' in notification data"),"parsing")
+                LogService.error(Exception("Missing key: '$key' in notification data"), "parsing")
                 return mapOf()
             }
 

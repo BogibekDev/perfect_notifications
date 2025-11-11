@@ -19,13 +19,11 @@ class FCMService : FirebaseMessagingService() {
         val notificationData = NotificationData.parse(message.data)
         val locale = cacheManager.getLocale()
 
-        val channelId =
-            localizedCore(notificationData.coreSound, locale, "core_sound") ?: "default_channel"
-        val title =
-            localizedCore(notificationData.coreTitle, locale, "core_title") ?: "Notification"
-        val body = localizedCore(notificationData.coreBody, locale, "core_body") ?: ""
-        val sound = localizedCore(notificationData.coreSound, locale, "core_sound")
-        val image = localizedCore(notificationData.coreImage, locale, "core_image")
+        val channelId = channelId(notificationData.defaultSound, notificationData.coreSound, locale)
+        val title = title(notificationData.defaultTitle, notificationData.coreTitle, locale)
+        val body = body(notificationData.defaultBody, notificationData.coreBody, locale)
+        val sound = sound(notificationData.defaultSound, notificationData.coreSound, locale)
+        val image = image(notificationData.defaultImage, notificationData.coreImage, locale)
 
         val enable = cacheManager.getSoundEnable()
         val id = if (enable) "$channelId-enable" else "$channelId-disable"
@@ -74,5 +72,35 @@ class FCMService : FirebaseMessagingService() {
             LogService.error(Exception("$locale is missing error:${e.message}"), "localized")
             null
         }
+    }
+
+    private fun channelId(default: String?, core: Map<String, String>, locale: String): String {
+        if (!default.isNullOrBlank()) return default
+
+        return localizedCore(core, locale, "core_sound") ?: "default_channel"
+    }
+
+    private fun title(default: String?, core: Map<String, String>, locale: String): String {
+        if (!default.isNullOrBlank()) return default
+
+        return localizedCore(core, locale, "core_title") ?: "Notification"
+    }
+
+    private fun body(default: String?, core: Map<String, String>, locale: String): String {
+        if (!default.isNullOrBlank()) return default
+
+        return localizedCore(core, locale, "core_body") ?: ""
+    }
+
+    private fun sound(default: String?, core: Map<String, String>, locale: String): String? {
+        if (!default.isNullOrBlank()) return default
+
+        return localizedCore(core, locale, "core_sound")
+    }
+
+    private fun image(default: String?, core: Map<String, String>, locale: String): String? {
+        if (!default.isNullOrBlank()) return default
+
+        return localizedCore(core, locale, "core_image")
     }
 }

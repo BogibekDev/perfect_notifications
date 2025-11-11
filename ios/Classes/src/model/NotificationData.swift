@@ -5,6 +5,11 @@
 import Foundation
 
 struct NotificationData: Codable {
+    let defaultTitle:String?
+    let defaultBody:String?
+    let defaultImage:String?
+    let defaultSound:String?
+    
     let coreTitle: [String: String]
     let coreSound: [String: String]
     let coreBody: [String: String]
@@ -46,6 +51,11 @@ struct NotificationData: Codable {
 
         // 🔹 3. Obyektni yasaymiz
         return NotificationData(
+            defaultTitle: dataDict["default_title"] as? String,
+            defaultBody: dataDict["default_body"] as? String,
+            defaultImage: dataDict["default_image"] as? String,
+            defaultSound: dataDict["default_sound"] as? String,
+            
             coreTitle: decodeMap(for: "core_title"),
             coreSound: decodeMap(for: "core_sound"),
             coreBody: decodeMap(for: "core_body"),
@@ -55,15 +65,30 @@ struct NotificationData: Codable {
     }
 
     func toNotificationDetails(locale: String,soundEnable:Bool) -> NotificationDetails {
-        let channelId = localizedCore(core: coreSound, locale: locale, key: "core_sound") ?? "default_channel"
-        let title = localizedCore(core: coreTitle, locale: locale, key: "core_title") ?? "Notification"
-        let body = localizedCore(core: coreBody, locale: locale, key: "core_body") ?? ""
-        let rawSound = localizedCore(core: coreSound, locale: locale, key: "core_sound")
+        let channelId = defaultSound.isNilOrBlank
+                ? (localizedCore(core: coreSound, locale: locale, key: "core_sound") ?? "default_channel")
+                : defaultSound!
+
+        let title = defaultTitle.isNilOrBlank
+                ? (localizedCore(core: coreTitle, locale: locale, key: "core_title") ?? "Notification")
+                : defaultTitle!
+
+        let body = defaultBody.isNilOrBlank
+                ? (localizedCore(core: coreBody, locale: locale, key: "core_body") ?? "")
+                : defaultBody!
+
+        let rawSound = defaultSound.isNilOrBlank
+                ? localizedCore(core: coreSound, locale: locale, key: "core_sound")
+                : defaultSound
+        let imageUrl = defaultImage.isNilOrBlank
+                ? localizedCore(core: coreImage, locale: locale, key: "core_image")
+                : defaultImage
+
         let soundName = rawSound.flatMap {
             $0.hasSuffix(".caf") || $0.hasSuffix(".wav") || $0.hasSuffix(".aiff") ? $0 : $0 + ".wav"
         }
+
         let sound = soundEnable ? soundName : "default"
-        let imageUrl = localizedCore(core: coreImage, locale: locale, key: "core_image")
         
         let payloadMap: [String: AnyCodable]? = coreType.isEmpty
                 ? nil
@@ -98,5 +123,11 @@ struct NotificationData: Codable {
         
         return result
        
+    }
+}
+
+extension Optional where Wrapped == String {
+    var isNilOrBlank: Bool {
+        return self?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
     }
 }
