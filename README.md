@@ -5,7 +5,7 @@
 It works with Firebase Cloud Messaging (FCM) and provides full support for both Android and iOS platforms.
 
 ---
-[Read in Uzbek](/README_UZ.md)
+[Read in Uzbek](/README_UZB.md)
 
 ## 🚀 Getting Started
 
