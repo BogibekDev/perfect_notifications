@@ -110,8 +110,7 @@ Agar `isEnable` `false` bo‘lsa — xabarnomalar tizimning (system) standart to
 
 >🔊 Eslatma:
 Custom tovush fayli (masalan: `notification_sound.wav`).<br><br>
-`Android`’da `android/app/src/main/res/raw/` papkasida joylashgan bo‘lishi kerak.
-<br>
+`Android`’da `android/app/src/main/res/raw/` papkasida joylashgan bo‘lishi kerak.<br>
 `iOS`: `Xcode`’da faylni Runner papkasiga `Add Files to Runner` orqali qo‘shing. Fayl avtomatik ravishda `Bundle Resources` ichiga kiritiladi.
 
 Xabarnoma yuborishda sound qiymatini fayl nomi bilan belgilang:
