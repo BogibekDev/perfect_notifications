@@ -100,7 +100,22 @@ try {
 > 💡 **Tip:** Save the token on your server for targeted push notifications.
 
 ---
+### 🔔 Control Notifications with Custom Sound
+#### If you want notifications to play using your custom sound, use the following function:
+```dart
+await PerfectNotifications.instance.changeSoundEnable(isEnable);
+```
+> When `isEnable` is `true`, notifications will play with your custom sound.<br>
+When `isEnable` is `false`, notifications will play with the system default sound.<br>
 
+>🔊 Note: Custom file(e.g., notification_sound.wav).<br><br>
+`Android`: place your sound file in `android/app/src/main/res/raw/` <br>
+`iOS`: in `Xcode`, right-click the Runner folder and choose `Add Files to Runner`. The file will automatically be included in `Bundle Resources.`
+
+When sending a notification, set the sound field to your file name:
+```json
+"default_sound": "notification_sound"
+```
 ## 🔔 Handling Notification Clicks
 
 ```dart
@@ -169,6 +184,9 @@ if (initial != null) {
 > ⚠️ **Note:** The `apns` section is required for iOS.  
 > The `title` and `body` fields act as fallback values.
 
+> ⚠️ **Note:** The default_* fields (default_title, default_body, default_sound, default_image) have higher priority.
+If a default_* value is provided, it will be used directly.
+If the field is missing or empty, the corresponding core_* value will be used instead — automatically selected based on the user’s saved language.
 ---
 
 ## 🍏 iOS — Notification Service Extension (NSE)

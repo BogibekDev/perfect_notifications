@@ -99,11 +99,32 @@ try {
 > 💡 **Maslahat:** Tokenni o‘z serveringizda saqlang, push yuborish uchun kerak bo‘ladi.
 
 ---
+## 🔔 Xabarnomani custom tovush bilan chiqishini boshqarish
+
+#### Agar siz xabarnomalarni o‘zingiz belgilagan maxsus tovush bilan chiqarmoqchi bo‘lsangiz, quyidagi funksiyadan foydalaning:
+```dart
+await PerfectNotifications.instance.changeSoundEnable(isEnable);
+```
+> Agar `isEnable` `true` bo‘lsa — xabarnomalar siz belgilagan custom sound bilan chiqadi. <br>
+Agar `isEnable` `false` bo‘lsa — xabarnomalar tizimning (system) standart tovushi bilan chiqadi. <br>
+
+>🔊 Eslatma:
+Custom tovush fayli (masalan: `notification_sound.wav`).<br><br>
+`Android`’da `android/app/src/main/res/raw/` papkasida joylashgan bo‘lishi kerak.
+<br>
+`iOS`: `Xcode`’da faylni Runner papkasiga `Add Files to Runner` orqali qo‘shing. Fayl avtomatik ravishda `Bundle Resources` ichiga kiritiladi.
+
+Xabarnoma yuborishda sound qiymatini fayl nomi bilan belgilang:
+```json
+"default_sound": "notification_sound"
+```
+
+---
 
 ## 🔔 Notification bosilganda ishlovchi funksiya
 
 ```dart
-PerfectNotificationService.instance.onNotificationClick.listen((message) {
+PerfectNotifications.instance.onNotificationClick.listen((message) {
   if (message.data == null) return;
 
   final msg = json.decode(message.data!);
@@ -165,8 +186,11 @@ if (initial != null) {
 }
 ```
 
-> ⚠️ **Eslatma:** iOS qurilmalarda `apns` bo‘limi muhim. `title` va `body` fallback text bo‘lishi kerak.
+> ⚠️ **Eslatma:** iOS qurilmalarda `apns` bo‘limi muhim. `title` va `body` fallback text bo‘lishi kerak va `content-available : 1`, `mutable-content: 1` ham bo'lishi shart.
 
+> ⚠️ **Eslatma:** default_* maydonlari (default_title, default_body, default_sound, default_image) yuqori ustuvorlikka ega.
+Agar ushbu maydonlarda qiymat berilgan bo‘lsa, aynan o‘sha qiymat ishlatiladi.
+Agar qiymat bo‘sh yoki mavjud bo‘lmasa, tizim avtomatik ravishda foydalanuvchining tanlangan tiliga mos core_* qiymatini ishlatadi. 
 ---
 
 ## 🍏 iOS uchun Notification Service Extension (NSE)
