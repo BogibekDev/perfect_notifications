@@ -176,11 +176,12 @@ if (initial != null) {
       "default_body": "Default body",
       "default_sound": "Default sound",
       "default_image": "Default image url",
-      "core_title": "{"uz":"title_uz", "ru":"title_ru"}",
-      "core_body": "{"uz":"body_uz", "ru":"body_ru"}",
-      "core_image": "{"uz":"image_url_uz", "ru":"image_url_ru"}",
-      "core_sound": "{"uz":"sound_uz", "ru":"sound_ru"}",
-      "core_type": "{"type":"your_type", "action":"your_action", "data":"your data"}"
+      
+      "core_title": "{\"uz\":\"title_uz\", \"ru\":\"title_ru\"}",
+      "core_body": "{\"uz\":\"body_uz\", \"ru\":\"body_ru\"}",
+      "core_image": "{\"uz\":\"image_url_uz\", \"ru\":\"image_url_ru\"}",
+      "core_sound": "{\"uz\":\"sound_uz\", \"ru\":\"sound_ru\"}",
+      "core_type": "{\"type\":\"your_type\", \"action\":\"your_action\", \"data\":\"your data\"}"
     }
   }
 }
