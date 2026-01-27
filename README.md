@@ -5,6 +5,10 @@
 It works with Firebase Cloud Messaging (FCM) and provides full support for both Android and iOS platforms.
 
 ---
+
+## 🎥 Demo Video
+https://github.com/user-attachments/assets/619e73f9-00cf-4576-b5bd-fa83e135b0a8
+
 [Read in Uzbek](/README_UZB.md)
 
 ## 🚀 Getting Started
