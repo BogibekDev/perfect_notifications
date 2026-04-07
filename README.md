@@ -229,6 +229,15 @@ Inside your NSE folder, add these files:
 These files connect your NSE logic with the iOS part of the `perfect_notifications` package.
 
 ---
+### 3. Add this ProGuard rule
+
+```dart
+# Butun paketni va uning barcha ichki papkalarini (sub-packages) saqlab qolish
+-keep class org.perfect.notifications.perfect_notifications.** { *; }
+
+# Enum'lar uchun maxsus (LanguageEnum kabi klasslar uchun)
+-keepclassmembers enum org.perfect.notifications.perfect_notifications.** { *; }
+```
 
 ✅ Your **Perfect Notifications** setup is now complete!  
 You can now send and receive both push and local notifications on Android and iOS.
