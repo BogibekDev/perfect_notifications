@@ -9,6 +9,55 @@ class NotificationService: NSObject {
 
     private let center = UNUserNotificationCenter.current()
 
+    /// Previous delegate (e.g. firebase_messaging).
+    weak var forwardDelegate: UNUserNotificationCenterDelegate?
+
+    var onNotificationTap: (([String: Any]) -> Void)?
+
+    /// Forward only while we are the active delegate, otherwise it loops.
+    private func shouldForward(_ center: UNUserNotificationCenter) -> UNUserNotificationCenterDelegate? {
+        guard let forward = forwardDelegate,
+              (forward as AnyObject) !== self,
+              (center.delegate as AnyObject?) === self else {
+            return nil
+        }
+        return forward
+    }
+
+    /// Same shape as the Android click event.
+    static func clickPayload(from userInfo: [AnyHashable: Any]) -> [String: Any] {
+        var data: [String: Any] = [:]
+
+        if let nested = userInfo["data"] as? [String: Any] {
+            data = nested
+        } else if let nestedString = userInfo["data"] as? String,
+                  let nestedData = nestedString.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: nestedData) as? [String: Any] {
+            data = json
+        } else {
+            for (k, v) in userInfo {
+                guard let key = k as? String else { continue }
+                if key == "aps" || key == "fcm_options" || key == "channelId" || key == "notificationId"
+                    || key.hasPrefix("gcm.") || key.hasPrefix("google.") {
+                    continue
+                }
+                data[key] = v
+            }
+        }
+
+        data = data.filter { JSONSerialization.isValidJSONObject([$0.key: $0.value]) }
+
+        let wrapped: [String: Any] = ["data": data]
+        let json = (try? JSONSerialization.data(withJSONObject: wrapped))
+            .flatMap { String(data: $0, encoding: .utf8) }
+
+        return [
+            "data": json ?? NSNull(),
+            "fromPush": userInfo["gcm.message_id"] != nil,
+            "timestamp": Int(Date().timeIntervalSince1970 * 1000),
+        ]
+    }
+
     // MARK: - Permission
 
     /// Permission so'rash
@@ -230,7 +279,11 @@ extension NotificationService: UNUserNotificationCenterDelegate {
     ) {
         
         let isRemote = notification.request.trigger is UNPushNotificationTrigger
-        
+
+        if isRemote, let forward = shouldForward(center) {
+            forward.userNotificationCenter?(center, willPresent: notification) { _ in }
+        }
+
         if isRemote {
             do {
                 let userInfo = notification.request.content.userInfo
@@ -271,15 +324,16 @@ extension NotificationService: UNUserNotificationCenterDelegate {
     ) {
         
         let userInfo = response.notification.request.content.userInfo
-        print("📱 Notification tapped: \(userInfo)")
-        let data = NotificationData.parse(from: userInfo)
-        let locale = CacheManager().getLocale()
-    
-        let _ = data?.toNotificationDetails(locale: locale,soundEnable: false)
-        
-        // TODO: Event'ni Flutter'ga yuborish (EventChannel orqali)
+        LogService.info("Notification tapped: \(userInfo)", tag: "didReceive")
+
+        if response.actionIdentifier != UNNotificationDismissActionIdentifier {
+            onNotificationTap?(NotificationService.clickPayload(from: userInfo))
+        }
+
+        if let forward = shouldForward(center) {
+            forward.userNotificationCenter?(center, didReceive: response) {}
+        }
 
         completionHandler()
-
     }
 }

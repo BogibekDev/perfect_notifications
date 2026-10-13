@@ -11,6 +11,7 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
     private var methodChannel: FlutterMethodChannel!
     private var eventChannel: FlutterEventChannel?
     private var eventSink: FlutterEventSink?
+    private var pendingNotificationClick: [String: Any]?
 
     private let notificationService: NotificationService
     private var cacheManager: CacheManager? // Make optional
@@ -51,9 +52,26 @@ public class PerfectNotificationsPlugin: NSObject, FlutterPlugin {
 
         registrar.addApplicationDelegate(instance)
 
-        UNUserNotificationCenter.current().delegate = instance.notificationService
+        let center = UNUserNotificationCenter.current()
+        if let previous = center.delegate, (previous as AnyObject) !== instance.notificationService {
+            instance.notificationService.forwardDelegate = previous
+        }
+
+        instance.notificationService.onNotificationTap = { [weak instance] payload in
+            instance?.sendNotificationClick(payload)
+        }
+
+        center.delegate = instance.notificationService
 
         print("✅ PerfectNotificationsPlugin registered")
+    }
+
+    private func sendNotificationClick(_ payload: [String: Any]) {
+        if let sink = eventSink {
+            sink(payload)
+        } else {
+            pendingNotificationClick = payload
+        }
     }
 
 
@@ -299,6 +317,12 @@ extension PerfectNotificationsPlugin: FlutterStreamHandler {
         eventSink events: @escaping FlutterEventSink
     ) -> FlutterError? {
         self.eventSink = events
+
+        if let pending = pendingNotificationClick {
+            pendingNotificationClick = nil
+            events(pending)
+        }
+
         return nil
     }
 
