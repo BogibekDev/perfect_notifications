@@ -54,8 +54,25 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        // TODO: Bu tokenni Dart tomoniga MethodChannel/EventChannel orqali yetkazishingiz mumkin.
-        // Yoki SharedPreferences ga saqlab, keyin o‘qib olish.
+        forwardTokenToFirebaseMessaging(token)
+    }
+
+    private fun forwardTokenToFirebaseMessaging(token: String) {
+        try {
+            val cls = Class.forName(FLUTTER_TOKEN_LIVE_DATA)
+            val instance = cls.getMethod("getInstance").invoke(null)
+            cls.getMethod("postToken", String::class.java).invoke(instance, token)
+            LogService.success("Token forwarded to firebase_messaging", "onNewToken")
+        } catch (e: ClassNotFoundException) {
+            LogService.info("firebase_messaging not found, token not forwarded", "onNewToken")
+        } catch (e: Exception) {
+            LogService.error(Exception("Token forward failed: ${e.message}"), "onNewToken")
+        }
+    }
+
+    private companion object {
+        const val FLUTTER_TOKEN_LIVE_DATA =
+            "io.flutter.plugins.firebase.messaging.FlutterFirebaseTokenLiveData"
     }
 
     fun localizedCore(core: Map<String, String>, locale: String, key: String): String? {
